@@ -1,8 +1,5 @@
 const data = [];
 
-let m = 1;
-let b = 0;
-
 function setup() {
     createCanvas(400, 400);
 }
@@ -22,18 +19,20 @@ function linearRegression() {
 
     data.forEach(({x, y}) => {
         numerator += (x - xmean) * (y - ymean);
-        denominator += (x - xmean) * (x - ymean);
+        denominator += (x - xmean) * (x - xmean);
     });
 
-    m = numerator / denominator;
-    b = ymean - m * xmean;
+    const m = numerator / denominator;
+    const b = ymean - m * xmean;
+
+    return { b, m };
 }
 
-function drawLine() {
+function drawLine(b, m) {
     const x1 = 0;
     const y1 = m * x1 + b;
     const x2 = 1;
-    const y2 = m * x2 +b;
+    const y2 = m * x2 + b;
     stroke(255, 0, 255);
 
     const mx1 = map(x1, 0, 1, 0, width);
@@ -62,7 +61,7 @@ function draw() {
     });
 
     if (data.length > 1) {
-        linearRegression();
-        drawLine();
+        const { b, m } = linearRegression();
+        drawLine(b, m);
     }
 }
