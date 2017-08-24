@@ -10,7 +10,7 @@ function setup() {
 function linearRegression() {
     const {x:xsum, y:ysum} = data.reduce((prevVal, curVal) => {
         prevVal.x += curVal.x;
-        prevVal.y += curVal.x;
+        prevVal.y += curVal.y;
         return prevVal;
     }, { x: 0, y: 0 });
 
