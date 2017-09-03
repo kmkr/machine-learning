@@ -117,7 +117,7 @@ Utfordring her er at man ikke kan hente tilfeldige verdier fra P1 og P2 og samti
              > xxx4567xx
 937|8265|14
 
-2: Ta utgangspunkt i tilsvarende segment i P2 og plasser der som P2s verdi av P1s tilsvarende plass er. Finn P1s verdi av P2s første verdi i segmente ('8'). P1s tilsvarende verdi er '4'. Plasser '8' i offspring der P2 har '4'.
+2: Ta utgangspunkt i tilsvarende segment i P2 og plasser der som P2s verdi av P1s tilsvarende plass er. Finn P1s verdi av P2s første verdi i segmentet ('8'). P1s tilsvarende verdi er '4'. Plasser '8' i offspring der P2 har '4'.
 
 123|4567|89
              > xxx4567x8
