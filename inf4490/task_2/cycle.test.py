@@ -1,7 +1,7 @@
 import unittest
 import cycle
 
-class TestPMX(unittest.TestCase):
+class TestCycle(unittest.TestCase):
 
     def setUp(self):
         self.seq_1 = [1, 2, 3, 4, 5, 6, 7, 8, 9]
