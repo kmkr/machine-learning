@@ -1,5 +1,4 @@
-import random
-import math
+import helper
 #
 # Given the sequences (2,4,7,1,3,6,8,9,5) and (5,9,8,6,2,4,1,3,7).
 # Implement these algorithms to create a new pair of solutions:
@@ -8,9 +7,7 @@ import math
 # \item Partially mapped crossover (PMX).
 
 def partial_mapped_crossover(P1, P2):
-    cross_a = random.randint(0, len(P1) - 2)
-    cross_b = random.randint(cross_a, len(P1) - 1)
-
+    cross_a, cross_b = helper.get_crossover_points(len(P1))
     print 'Cross A: ' + str(cross_a) + ' Cross B : ' + str(cross_b)
 
     child_1 = child_from(P1, P2, cross_a, cross_b)
