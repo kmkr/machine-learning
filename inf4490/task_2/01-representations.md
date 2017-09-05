@@ -27,7 +27,7 @@ Fare for _positional bias_.
 
 ### Uniform crossover
 
-Hver posisjon i offspring1 har en sannsynlighet p for å få en gen fra P1, ellers fra P2. offspring2 får invertert mapping. 
+Hver posisjon i offspring1 har en sannsynlighet p for å få en gen fra P1, ellers fra P2. offspring2 får invertert mapping.
 
 Ingen _positional bias_, men med p = 0.5 så vil gjennomsnittlig halvparten av genene overføres (_distributional bias_).
 
@@ -159,7 +159,7 @@ Beholver _relativ order_ fra P2.
 
 ### Cycle crossover
 
-Fokus på _absolutt posisjonering_ av hvor elementene opptrer. 
+Fokus på _absolutt posisjonering_ av hvor elementene opptrer.
 
 Offspring lages ved å alternere sykluser.
 
@@ -168,6 +168,7 @@ Offspring lages ved å alternere sykluser.
 1. Starter med første ubrukt posisjon i P1 og tilsvarende posisjon i P2. ('1' og '9').
 2. Gå til posisjonen med samme allele i P1. ('9' er i siste posisjon i P1)
 3. Repeat frem til du kommer til første allele ('1')
+4. Repeat runde men nå får children alleler kopiert motsatt
 
 Round 1:
 
@@ -176,8 +177,10 @@ Round 1:
 
 Round 2:
 
-123456789  >  12345x789
-937826514  >  93782x514
+Nå blir alleler kopiert motsatt
+
+123456789  >  13742x589
+937826514  >  92385x714
 
 Round 3:
 
