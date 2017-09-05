@@ -23,18 +23,18 @@ def child_from(P1, P2, cross_a, cross_b):
     print 'P2: ' + ', '.join(str(e) for e in P2)
     child = [None]*len(P1)
 
-    child[cross_a:cross_b + 1] = P1[cross_a:cross_b + 1]
+    child[cross_a:cross_b] = P1[cross_a:cross_b]
 
     print 'Child etter step 1 (segment copy):'
     print child
 
-    for x in range(cross_a - 1, cross_b):
+    for x in range(cross_a, cross_b):
         p2_index = cross_a
 
         # Start index med segment-verdien
-        index = x + 1
+        index = x
         p2_segment_val = P2[index]
-        while p2_index >= cross_a and p2_index <= cross_b:
+        while p2_index >= cross_a and p2_index < cross_b:
             p1_segment_val = P1[index]
             p2_index = P2.index(p1_segment_val)
             index = p2_index
