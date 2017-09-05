@@ -23,8 +23,7 @@ def child_from(P1, P2, cross_a, cross_b):
     print 'P2: ' + ', '.join(str(e) for e in P2)
     child = [None]*len(P1)
 
-    for x in range(cross_a, cross_b + 1):
-        child[x] = P1[x]
+    child[cross_a:cross_b + 1] = P1[cross_a:cross_b + 1]
 
     print 'Child etter step 1 (segment copy):'
     print child
