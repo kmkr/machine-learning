@@ -1,2 +1,6 @@
 .pyc
 .vscode
+__pycache__
+*.aux
+*.log
+*.pdf
