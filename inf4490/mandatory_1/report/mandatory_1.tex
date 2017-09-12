@@ -1,6 +1,7 @@
 \documentclass{article}
 
 \usepackage{booktabs}
+\usepackage{microtype}
 \title{Mandatory Assignment 1}
 \author{Kris-Mikael Krister}
 \date{\today}
@@ -12,9 +13,10 @@
 
 The shortest path is Copenhagen $\rightarrow$ Hamburg $\rightarrow$ Brussels $\rightarrow$ Dublin $\rightarrow$ Barcelona $\rightarrow$ Belgrade $\rightarrow$ Istanbul $\rightarrow$ Bucharest $\rightarrow$ Budapest $\rightarrow$ Berlin. The total distance for the route is 7486.31 km.\\
 
-\noindent The solution was found using 21.25 seconds on a Linux i5-4670 CPU @ 3.40GHz. An improvement to the program would be to exploit the multi-core architecture.\\
+\noindent The solution was found using 21.25 seconds on a Linux i5-4670 CPU @ 3.40GHz. A single core was used when running the program, so exploiting the multi-core architecture would be a possible improvement to the program.\\
 
-\begin{tabular}{ll}
+\begin{center}
+\begin{tabular}{cr}
 \toprule
 Number of cities & Execution time (seconds) \\
 \midrule
@@ -27,19 +29,25 @@ Number of cities & Execution time (seconds) \\
 11 & 258 \\
 12 & 3406.87 \\
 \bottomrule
-\end{tabular}\\\\
+\end{tabular}
+\end{center}
 
-\noindent Execution time seems to be factorial ($O(n!)$), so based on the results above, the expected running time for all 24 cities will be $3406.87 * 13 * 14 * 15 * 16 * 17 * 18 * 19 * 20 * 21 * 22 * 23 * 24 = 4.412901849 \times 10^{18}$ seconds.
+\noindent Execution time seems to be factorial ($O(n!)$), so based on the results above, the expected running time for all 24 cities would be approximately $3406.87 * 13 * 14 * 15 * 16 * 17 * 18 * 19 * 20 * 21 * 22 * 23 * 24 \approx 4.41 \times 10^{18}$ seconds.
 
 \subsection*{How to run the program}
 
 Execute the \texttt{tsp\_exhaustive.py} file with the amount of cities to check.
 
 \begin{verbatim}
-$ python tsp_exhaustive.py 5
+$ python tsp_exhaustive.py 5
+
+Exhastive search using 5 first cities
+Found shortest {'distance': 4983.38, 'route': ('Barcelona',
+'Belgrade', 'Bucharest', 'Berlin', 'Brussels')} in
+time 0.00048303604126
 \end{verbatim}
 
-To run all tests, use Python's unittest discovery:
+\noindent All modules have one or more unit tests to verify the implementation. To run all tests, use Python's unittest discovery:
 
 \begin{verbatim}
 $ python -m unittest discover -p '*_test.py'
