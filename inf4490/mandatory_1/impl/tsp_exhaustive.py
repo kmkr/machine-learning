@@ -37,7 +37,7 @@ def find_shortest_path_for_cities(distance_dataset, num_cities):
 
 if __name__ == '__main__':
     num_cities = 5
-    if sys.argv[1]:
+    if len(sys.argv) > 1:
         num_cities = int(sys.argv[1])
 
     print('Exhastive search using ' + str(num_cities) + ' first cities')
