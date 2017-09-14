@@ -29,5 +29,11 @@ class TestDistanceHelper(unittest.TestCase):
             0
         )
 
+    def test_get_route_distance(self):
+        self.assertEqual(
+            distance_helper.get_route_distance(self.distances, self.distances[0]),
+            1528.13 + 999.25 + 1497.61
+        )
+
 if __name__ == '__main__':
     unittest.main()

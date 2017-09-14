@@ -11,7 +11,9 @@
 \maketitle
 \section*{Exhaustive Search}
 
-The shortest path is Copenhagen $\rightarrow$ Hamburg $\rightarrow$ Brussels $\rightarrow$ Dublin $\rightarrow$ Barcelona $\rightarrow$ Belgrade $\rightarrow$ Istanbul $\rightarrow$ Bucharest $\rightarrow$ Budapest $\rightarrow$ Berlin. The total distance for the route is 7486.31 km.\\
+This section describes the results using an exhaustive search implementation for finding the shortest path of a set of cities, also known as the travelling salesman problem. Since an exhaustive search verifies all possible permutations, the algorithm is guaranteed to find the shortest path. See
+
+From the set of the following ten cities, the path found to be shortest is Copenhagen $\rightarrow$ Hamburg $\rightarrow$ Brussels $\rightarrow$ Dublin $\rightarrow$ Barcelona $\rightarrow$ Belgrade $\rightarrow$ Istanbul $\rightarrow$ Bucharest $\rightarrow$ Budapest $\rightarrow$ Berlin. The total distance for the route is 7486.31 km.\\
 
 \noindent The solution was found using 21.25 seconds on a Linux i5-4670 CPU @ 3.40GHz. A single core was used when running the program, so exploiting the multi-core architecture would be a possible improvement to the program.\\
 
@@ -53,4 +55,55 @@ time 0.00048303604126
 $ python -m unittest discover -p '*_test.py'
 \end{verbatim}
 
+\section*{Hill Climber}
+
+This section describes the results using a hill climber implementation to find the shortest path.
+
+\subsection*{Implementation}
+
+Key properties for the implementation are shown below.
+
+\begin{itemize}
+    \item A random permutation is chosen as a starting point and it's total route distance is calculated.
+    \item The position of two random cities in the permutation are swapped and the route distance is calculated.
+    \item If the new route distance is shorter than the previous one, update the pointer of the best route.
+    \item Repeat until the maximum amount of total iterations are reached (set to 5000), or maximum amount of iterations (set to 50) with a change below a threshold (300) is reached.
+\end{itemize}
+
+\subsection*{Results}
+
+The algorithm is stochastic and the result can differ between each run. Multiple executions of the hill climber algorithm must therefore run to be able to compare it to the exhaustive search algorithm. Twenty iterations were used for the comparison.
+
+
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+Measurement & Ten first cities & All cities \\
+\midrule
+Best & $7486.31$ & $127\,59.8$ \\
+Worst & $8407.18$ & $15\,209.07$ \\
+Mean & $7747.34$ & $14\,005.63$ \\
+Standard deviation & $346.35$ & $821.67$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The hill climber found the optimal solution for the case of the ten first cities. We don't have the optimal solution for all cities so we don't know in that case.
+
+
+\subsection*{How to run the program}
+
+Execute the \texttt{tsp\_hill\_climber.py} file with the amount of cities to check. Note that Python 3.4 or later is required due to usage of the statistics library for standard deviation.
+
+\begin{verbatim}
+$ python tsp_hill_climber.py 24
+
+Hill climber search using first 24 cities. Running in total 20
+executions.
+Best   12759.8
+Worst  15209.069999999998
+Mean   14005.635999999999
+stdev  821.6690607307211
+\end{verbatim}
 \end{document}

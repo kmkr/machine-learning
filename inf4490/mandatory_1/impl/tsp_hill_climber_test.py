@@ -1,7 +1,7 @@
 import unittest
-import tsp_exhaustive
+import tsp_hill_climber
 
-class TestTSPExhaustive(unittest.TestCase):
+class TestHillClimber(unittest.TestCase):
 
     def setUp(self):
         self.distance_dataset = [
@@ -14,14 +14,13 @@ class TestTSPExhaustive(unittest.TestCase):
         ]
 
     def test_shortest_path(self):
-        result, duration = tsp_exhaustive.find_shortest_path_for_cities(
+        result, _ = tsp_hill_climber.find_shortest_path_for_cities(
             self.distance_dataset, len(self.distance_dataset)
         )
 
-        self.assertEqual(result, {
-            'distance': 4983.38,
-            'route': ('Barcelona', 'Belgrade', 'Bucharest', 'Berlin', 'Brussels')
-        })
+        # Cannot guarantee to find the best solution
+        self.assertGreater(result['distance'], 1)
+        self.assertTrue(len(result['route']), len(self.distance_dataset[0]))
 
 if __name__ == '__main__':
     unittest.main()
