@@ -12,7 +12,7 @@ def genetic(num_cities, population_size):
 
 def generate_population(cities, population_size):
     population = []
-    for i in range(population_size):
+    for _ in range(population_size):
         random.shuffle(cities)
         population.append(list(cities))
 
