@@ -6,10 +6,6 @@ import random
 import statistics
 from time import time
 
-max_iterations = 5000
-max_iterations_without_change = 50
-change_threshold = 300
-
 def genetic(num_cities, population_size):
     distance_dataset = csv_reader.read_file('european_cities.csv')
     return find_shortest_path_for_cities(distance_dataset, num_cities, population_size)
@@ -22,63 +18,56 @@ def generate_population(cities, population_size):
 
     return population
 
-# Problemet ligger her tror jeg. Jeg tror det er for tidlig å kalkulere fitness.
 def evaluate_population(distance_dataset, population):
-    distances = []
-    for i, individual in enumerate(population):
-        distances.append((distance_helper.get_route_distance(distance_dataset, individual), individual ))
-
-    longest_distance = 0
-    for distance in distances:
-        if distance[0] > longest_distance:
-            longest_distance = distance[0]
-
     result = []
-    for distance in distances:
-        result.append((distance[0], longest_distance - distance[0], distance[1]))
+    for individual in population:
+        result.append({
+            'route_distance': distance_helper.get_route_distance(distance_dataset, individual),
+            'route': individual
+        })
 
     return result
 
-def get_probability_distribution(sorted_population):
+def get_probability_distribution(population):
     total_distance = 0
 
-    for elem in sorted_population:
-        total_distance = total_distance + elem[0]
+    for individual in population:
+        total_distance = total_distance + individual['route_distance']
 
     result = []
-    for elem in sorted_population:
-        result.append(elem[1] / total_distance)
+    for individual in population:
+        result.append(individual['route_distance'] / total_distance)
 
     return result;
 
 
-def select_parents(sorted_population, num_parents):
-    # Stochastic universal sampling
-    probability_distribution = get_probability_distribution(sorted_population)
-    # Fitness blir feil siden man tar utgangspunkt i feil tall (basert på hele population)
+def get_index_at_point(probability_distribution, point):
+    cur_val = 0
+    for index, elem in enumerate(probability_distribution):
+        cur_val = cur_val + elem
+        if cur_val >= point:
+            return index
 
-    r = random.random() * (1 / num_parents)
-    i = 0
+def select_parents(population, num_parents):
+    # Stochastic universal sampling
+    probability_distribution = get_probability_distribution(population)
+
+    pointer = random.random() * (1 / num_parents)
     mating_pool = []
     while len(mating_pool) < num_parents:
-        while r <= probability_distribution[i]:
-            mating_pool.append(sorted_population[i])
-            r = r + (1 / num_parents)
-        i = i + 1
+        index = get_index_at_point(probability_distribution, pointer)
+        mating_pool.append(population[index])
+        pointer = pointer + (1 / num_parents)
 
     return mating_pool
 
 def find_shortest_path_for_cities(distance_dataset, num_cities, population_size):
+    start = time()
+
     cities = list(distance_dataset[0][0:num_cities])
     population = generate_population(cities, population_size)
-    # Her evalueres fitness
     evaluated_population = evaluate_population(distance_dataset, population)
-    sorted_population = list(reversed(sorted(evaluated_population, key=lambda elem: elem[1])))
-
-    # Problemet nå er at fitness er allerede satt
-    parents = select_parents(sorted_population[0:4], 4)
-
-    start = time()
+    parents = select_parents(evaluated_population, 4)
 
     end = time()
     return shortest, end-start
