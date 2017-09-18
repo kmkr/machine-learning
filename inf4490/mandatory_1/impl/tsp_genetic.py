@@ -40,7 +40,6 @@ def get_probability_distribution(population):
 
     return result;
 
-
 def get_index_at_point(probability_distribution, point):
     cur_val = 0
     for index, elem in enumerate(probability_distribution):
@@ -67,7 +66,8 @@ def find_shortest_path_for_cities(distance_dataset, num_cities, population_size)
     cities = list(distance_dataset[0][0:num_cities])
     population = generate_population(cities, population_size)
     evaluated_population = evaluate_population(distance_dataset, population)
-    parents = select_parents(evaluated_population, 4)
+    num_parents = population_size / 2
+    parents = select_parents(evaluated_population, num_parents)
 
     end = time()
     return shortest, end-start
