@@ -12,6 +12,10 @@ sys.path.append(os.path.join(dir_path, '..', '..')) # To import modules from tas
 sys.path.append(os.path.join(dir_path, '..', '..', 'task_2')) # Setting task_2 as path will avoid having to re-write module imports in task_2 files
 import task_2.pmx
 
+NUM_GENERATIONS = 1000
+POPULATION_SIZE = 100
+NUM_EXECUTIONS = 20
+
 def genetic(num_cities, population_size):
     distance_dataset = csv_reader.read_file('european_cities.csv')
     return find_shortest_path_for_cities(distance_dataset, num_cities, population_size)
@@ -30,15 +34,15 @@ def evaluate_population(distance_dataset, population):
         'route': individual
     } for individual in population]
 
-def get_probability_distribution(population):
-    worst = max(map((lambda x: x['route_distance']), population))
-    fitness_list = list(map((lambda x: worst - x['route_distance']), population))
-    total_fitness = reduce((lambda x, y: x + y), fitness_list, 0)
+def get_probability_distribution(distances):
+    worst = max(distances)
+    fitness_list = [worst - distance for distance in distances]
+    total_fitness = sum(fitness_list)
 
     if total_fitness == 0:
         # Convergence
-        # print('Convergence')
-        return [0] * len(population)
+        # Fikses med fitness sharing / crowding ?
+        return [0] * len(distances)
 
     return [(fitness / total_fitness) for fitness in fitness_list]
 
@@ -51,14 +55,15 @@ def get_index_at_point(probability_distribution, point):
 
     return 0
 
-def stochastic_universal_sampling(population, num_individuals):
-    probability_distribution = get_probability_distribution(population)
+def stochastic_universal_sampling(evaluated_population, num_individuals):
+    distances = list(map((lambda x: x['route_distance']), evaluated_population))
+    probability_distribution = get_probability_distribution(distances)
 
     pointer = random.random() * (1 / num_individuals)
     mating_pool = []
     while len(mating_pool) < num_individuals:
         index = get_index_at_point(probability_distribution, pointer)
-        mating_pool.append(population[index])
+        mating_pool.append(evaluated_population[index]['route'])
         pointer = pointer + (1 / num_individuals)
 
     return mating_pool
@@ -108,15 +113,12 @@ def find_shortest_path_for_cities(distance_dataset, num_cities, population_size)
 
     cities = list(distance_dataset[0][0:num_cities])
     population = generate_population(cities, population_size)
-    stop_at_generation = 1000
     num_generation = 0
 
-    while num_generation < stop_at_generation:
+    while num_generation < NUM_GENERATIONS:
         evaluated_population = evaluate_population(distance_dataset, population)
         num_parents = population_size / 2
-        mating_pool = stochastic_universal_sampling(evaluated_population, num_parents)
-        parents = list(map((lambda x: x['route']), mating_pool))
-
+        parents = stochastic_universal_sampling(evaluated_population, num_parents)
         num_offspring = population_size * 2
         offspring = generate_offspring(parents, num_offspring)
         population = select_survivors(distance_dataset, parents, offspring, population_size)
@@ -127,20 +129,15 @@ def find_shortest_path_for_cities(distance_dataset, num_cities, population_size)
     print(distance_helper.get_route_distance(distance_dataset, shortest['individual']))
     return shortest, end-start
 
-if __name__ == '__main__':
-    num_cities = 5
-    population_size = 100
-    if len(sys.argv) > 1:
-        num_cities = int(sys.argv[1])
-
+def run(num_cities):
     best = float('inf')
     best_route = None
     worst = 0
     distances = []
-    num_executions = 20
+
     print('Genetic algorithm using first ' + str(num_cities) + ' cities')
-    for i in range(num_executions):
-        shortest, duration = genetic(num_cities, population_size)
+    for _ in range(NUM_EXECUTIONS):
+        shortest, duration = genetic(num_cities, POPULATION_SIZE)
         if shortest['distance'] < best:
             best = shortest['distance']
             best_route = shortest['individual']
@@ -152,5 +149,12 @@ if __name__ == '__main__':
     print('Best   ' + str(best))
     print(best_route)
     print('Worst  ' + str(worst))
-    print('Mean   ' + str(sum(distances) / num_executions))
+    print('Mean   ' + str(sum(distances) / NUM_EXECUTIONS))
     print('stdev  ' + str(statistics.stdev(distances)))
+
+
+if __name__ == '__main__':
+    if len(sys.argv) > 1:
+        run(int(sys.argv[1]))
+    else:
+        run(5)

@@ -13,13 +13,9 @@ class TestGenetic(unittest.TestCase):
         self.assertTrue(population[0][0] in self.cities)
 
     def test_probability_distribution(self):
-        population = [
-            {'route_distance': 6},
-            {'route_distance': 9},
-            {'route_distance': 7}
-        ]
-        probability_distribution = tsp_genetic.get_probability_distribution(population)
-        self.assertTrue(len(probability_distribution), len(population))
+        distances = [6, 9, 7]
+        probability_distribution = tsp_genetic.get_probability_distribution(distances)
+        self.assertTrue(len(probability_distribution), len(distances))
         total_fitness = (9 - 6) + (9 - 9) + (9 - 7)
         self.assertEqual(probability_distribution[0], (9 - 6) / total_fitness)
         self.assertEqual(probability_distribution[1], (9 - 9) / total_fitness)
