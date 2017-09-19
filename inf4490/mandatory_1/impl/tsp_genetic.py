@@ -37,7 +37,7 @@ def get_probability_distribution(population):
 
     if total_fitness == 0:
         # Convergence
-        print('Convergence')
+        # print('Convergence')
         return [0] * len(population)
 
     return [(fitness / total_fitness) for fitness in fitness_list]
@@ -51,16 +51,15 @@ def get_index_at_point(probability_distribution, point):
 
     return 0
 
-def generate_mating_pool(population, num_parents):
-    # Stochastic universal sampling
+def stochastic_universal_sampling(population, num_individuals):
     probability_distribution = get_probability_distribution(population)
 
-    pointer = random.random() * (1 / num_parents)
+    pointer = random.random() * (1 / num_individuals)
     mating_pool = []
-    while len(mating_pool) < num_parents:
+    while len(mating_pool) < num_individuals:
         index = get_index_at_point(probability_distribution, pointer)
         mating_pool.append(population[index])
-        pointer = pointer + (1 / num_parents)
+        pointer = pointer + (1 / num_individuals)
 
     return mating_pool
 
@@ -98,6 +97,12 @@ def get_shortest_route(distance_dataset, population):
 
     return shortest
 
+def select_survivors(distance_dataset, parents, offspring, population_size):
+    # Discard parents ((μ,λ) selection) and select best-fit offspring
+    evaluated_offspring = evaluate_population(distance_dataset, offspring)
+    sorted_offspring = sorted(evaluated_offspring, key=lambda offspring: offspring['route_distance'])
+    return map((lambda x: x['route']), sorted_offspring[0:population_size])
+
 def find_shortest_path_for_cities(distance_dataset, num_cities, population_size):
     start = time()
 
@@ -109,12 +114,12 @@ def find_shortest_path_for_cities(distance_dataset, num_cities, population_size)
     while num_generation < stop_at_generation:
         evaluated_population = evaluate_population(distance_dataset, population)
         num_parents = population_size / 2
-        num_offspring = population_size - num_parents
-        mating_pool = generate_mating_pool(evaluated_population, num_parents)
+        mating_pool = stochastic_universal_sampling(evaluated_population, num_parents)
         parents = list(map((lambda x: x['route']), mating_pool))
 
+        num_offspring = population_size * 2
         offspring = generate_offspring(parents, num_offspring)
-        population = parents + offspring
+        population = select_survivors(distance_dataset, parents, offspring, population_size)
         num_generation = num_generation + 1
 
     shortest = get_shortest_route(distance_dataset, population)
@@ -124,7 +129,7 @@ def find_shortest_path_for_cities(distance_dataset, num_cities, population_size)
 
 if __name__ == '__main__':
     num_cities = 5
-    population_size = 50
+    population_size = 100
     if len(sys.argv) > 1:
         num_cities = int(sys.argv[1])
 
