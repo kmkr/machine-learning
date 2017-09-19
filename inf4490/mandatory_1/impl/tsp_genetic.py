@@ -25,19 +25,23 @@ def generate_population(cities, population_size):
     return population
 
 def evaluate_population(distance_dataset, population):
-    result = []
-    for individual in population:
-        result.append({
-            'route_distance': distance_helper.get_route_distance(distance_dataset, individual),
-            'route': individual
-        })
-
-    return result
+    return [{
+        'route_distance': distance_helper.get_route_distance(distance_dataset, individual),
+        'route': individual
+    } for individual in population]
 
 def get_probability_distribution(population):
-    total_distance = reduce((lambda x, y: x + y['route_distance']), population, 0)
+    # Stochastic universal sampling
+    worst = max(map((lambda x: x['route_distance']), population))
+    fitness_list = list(map((lambda x: worst - x['route_distance']), population))
+    total_fitness = reduce((lambda x, y: x + y), fitness_list, 0)
 
-    return [(individual['route_distance'] / total_distance) for individual in population]
+    if total_fitness == 0:
+        # Convergence
+        print('Convergence')
+        return [0] * len(population)
+
+    return [(fitness / total_fitness) for fitness in fitness_list]
 
 def get_index_at_point(probability_distribution, point):
     cur_val = 0
@@ -46,8 +50,9 @@ def get_index_at_point(probability_distribution, point):
         if cur_val >= point:
             return index
 
+    return 0
+
 def generate_mating_pool(population, num_parents):
-    # Stochastic universal sampling
     probability_distribution = get_probability_distribution(population)
 
     pointer = random.random() * (1 / num_parents)
@@ -90,7 +95,7 @@ def find_shortest_path_for_cities(distance_dataset, num_cities, population_size)
 
     cities = list(distance_dataset[0][0:num_cities])
     population = generate_population(cities, population_size)
-    stop_at_iter = 100
+    stop_at_iter = 200
     num_iter = 0
 
     while num_iter < stop_at_iter:
@@ -106,6 +111,7 @@ def find_shortest_path_for_cities(distance_dataset, num_cities, population_size)
 
     shortest = get_shortest_route(distance_dataset, population)
     end = time()
+    print(distance_helper.get_route_distance(distance_dataset, shortest['individual']))
     return shortest, end-start
 
 if __name__ == '__main__':
@@ -115,6 +121,7 @@ if __name__ == '__main__':
         num_cities = int(sys.argv[1])
 
     best = float('inf')
+    best_route = None
     worst = 0
     distances = []
     num_executions = 20
@@ -123,12 +130,14 @@ if __name__ == '__main__':
         shortest, duration = genetic(num_cities, population_size)
         if shortest['distance'] < best:
             best = shortest['distance']
+            best_route = shortest['individual']
         if shortest['distance'] > worst:
             worst = shortest['distance']
 
         distances.append(shortest['distance'])
 
     print('Best   ' + str(best))
+    print(best_route)
     print('Worst  ' + str(worst))
     print('Mean   ' + str(sum(distances) / num_executions))
     print('stdev  ' + str(statistics.stdev(distances)))
