@@ -5,6 +5,7 @@ import sys
 import random
 import statistics
 from time import time
+from functools import reduce
 import os
 dir_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(dir_path, '..', '..'))
@@ -34,16 +35,9 @@ def evaluate_population(distance_dataset, population):
     return result
 
 def get_probability_distribution(population):
-    total_distance = 0
+    total_distance = reduce((lambda x, y: x + y['route_distance']), population, 0)
 
-    for individual in population:
-        total_distance = total_distance + individual['route_distance']
-
-    result = []
-    for individual in population:
-        result.append(individual['route_distance'] / total_distance)
-
-    return result;
+    return [(individual['route_distance'] / total_distance) for individual in population]
 
 def get_index_at_point(probability_distribution, point):
     cur_val = 0
@@ -52,7 +46,7 @@ def get_index_at_point(probability_distribution, point):
         if cur_val >= point:
             return index
 
-def select_parents(population, num_parents):
+def generate_mating_pool(population, num_parents):
     # Stochastic universal sampling
     probability_distribution = get_probability_distribution(population)
 
@@ -65,16 +59,52 @@ def select_parents(population, num_parents):
 
     return mating_pool
 
+def generate_offspring(parents, num_offspring):
+    offspring = []
+
+    while len(offspring) < num_offspring:
+        parent_1 = parents[random.randint(0, len(parents) - 1)]
+        parent_2 = parents[random.randint(0, len(parents) - 1)]
+
+        child_1, child_2 = task_2.pmx.partial_mapped_crossover(parent_1, parent_2)
+        offspring.append(child_1)
+        if len(offspring) < num_offspring:
+            offspring.append(child_2)
+
+    return offspring
+
+def get_shortest_route(distance_dataset, population):
+    shortest = { 'distance': float('inf') }
+    for individual in population:
+        route_distance = distance_helper.get_route_distance(distance_dataset, individual)
+        if route_distance < shortest['distance']:
+            shortest = {
+                'distance': route_distance,
+                'individual': individual
+            }
+
+    return shortest
+
 def find_shortest_path_for_cities(distance_dataset, num_cities, population_size):
     start = time()
 
     cities = list(distance_dataset[0][0:num_cities])
     population = generate_population(cities, population_size)
-    evaluated_population = evaluate_population(distance_dataset, population)
-    num_parents = population_size / 2
-    parents = select_parents(evaluated_population, num_parents)
-    task_2.pmx.partial_mapped_crossover(parents[0], parents[1])
+    stop_at_iter = 100
+    num_iter = 0
 
+    while num_iter < stop_at_iter:
+        evaluated_population = evaluate_population(distance_dataset, population)
+        num_parents = population_size / 2
+        num_offspring = population_size - num_parents
+        mating_pool = generate_mating_pool(evaluated_population, num_parents)
+        parents = list(map((lambda x: x['route']), mating_pool))
+
+        offspring = generate_offspring(parents, num_offspring)
+        population = parents + offspring
+        num_iter = num_iter + 1
+
+    shortest = get_shortest_route(distance_dataset, population)
     end = time()
     return shortest, end-start
 
