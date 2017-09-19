@@ -1,7 +1,7 @@
-from helper import get_crossover_points
+import helper
 
 def partial_mapped_crossover(P1, P2):
-    cross_a, cross_b = get_crossover_points(len(P1))
+    cross_a, cross_b = helper.get_crossover_points(len(P1))
     print('Cross A: ' + str(cross_a) + ' Cross B : ' + str(cross_b))
 
     child_1 = child_from(P1, P2, cross_a, cross_b)

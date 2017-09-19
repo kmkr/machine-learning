@@ -5,6 +5,11 @@ import sys
 import random
 import statistics
 from time import time
+import os
+dir_path = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(os.path.join(dir_path, '..', '..'))
+sys.path.append(os.path.join(dir_path, '..', '..', 'task_2'))
+import task_2.pmx
 
 def genetic(num_cities, population_size):
     distance_dataset = csv_reader.read_file('european_cities.csv')
@@ -68,6 +73,7 @@ def find_shortest_path_for_cities(distance_dataset, num_cities, population_size)
     evaluated_population = evaluate_population(distance_dataset, population)
     num_parents = population_size / 2
     parents = select_parents(evaluated_population, num_parents)
+    task_2.pmx.partial_mapped_crossover(parents[0], parents[1])
 
     end = time()
     return shortest, end-start
