@@ -1,5 +1,5 @@
 import unittest
-import distance_helper
+import distance.distance_helper as distance_helper
 
 class TestDistanceHelper(unittest.TestCase):
 

@@ -1,12 +1,12 @@
-import csv_reader
+import data.csv_reader
 import itertools;
 import math
-import distance_helper;
+import distance.distance_helper as distance_helper
 import sys
 from time import time
 
 def exhaustive_search(num_cities):
-    distance_dataset = csv_reader.read_file('european_cities.csv')
+    distance_dataset = data.csv_reader.read_file('european_cities.csv')
     return find_shortest_path_for_cities(distance_dataset, num_cities)
 
 def find_shortest_path_for_cities(distance_dataset, num_cities):

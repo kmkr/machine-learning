@@ -1,6 +1,7 @@
-import csv_reader
+import data.csv_reader
 import math
-import distance_helper;
+import distance.distance_helper as distance_helper;
+import mutation.mutation_helper as mutation_helper;
 import sys
 import random
 import statistics
@@ -17,7 +18,7 @@ POPULATION_SIZE = 100
 NUM_EXECUTIONS = 20
 
 def genetic(num_cities, population_size):
-    distance_dataset = csv_reader.read_file('european_cities.csv')
+    distance_dataset = data.csv_reader.read_file('european_cities.csv')
     return find_shortest_path_for_cities(distance_dataset, num_cities, population_size)
 
 def generate_population(cities, population_size):
@@ -69,7 +70,7 @@ def stochastic_universal_sampling(evaluated_population, num_individuals):
     return mating_pool
 
 def mutate(route):
-    return distance_helper.swap_random(route)
+    return mutation_helper.swap_random(route)
 
 def generate_offspring(parents, num_offspring):
     offspring = []

@@ -1,6 +1,7 @@
-import csv_reader
+import data.csv_reader
 import math
-import distance_helper;
+import distance.distance_helper as distance_helper;
+import mutation.mutation_helper as mutation_helper;
 import sys
 import random
 import statistics
@@ -11,7 +12,7 @@ max_iterations_without_change = 50
 change_threshold = 300
 
 def hill_climber(num_cities):
-    distance_dataset = csv_reader.read_file('european_cities.csv')
+    distance_dataset = data.csv_reader.read_file('european_cities.csv')
     return find_shortest_path_for_cities(distance_dataset, num_cities)
 
 def find_shortest_path_for_cities(distance_dataset, num_cities):
@@ -32,7 +33,7 @@ def find_shortest_path_for_cities(distance_dataset, num_cities):
     # print 'Iteration 0: ' + str(current_route)
 
     while num_iterations < max_iterations and num_iterations_without_change < max_iterations_without_change:
-        candidate_route = distance_helper.swap_random(current_route[:])
+        candidate_route = mutation_helper.swap_random(current_route[:])
         distance = distance_helper.get_route_distance(distance_dataset, candidate_route)
         change = distance - shortest['distance']
         if change > 0 and change <= change_threshold:
