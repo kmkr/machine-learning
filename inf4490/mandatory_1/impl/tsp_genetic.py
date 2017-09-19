@@ -8,8 +8,8 @@ from time import time
 from functools import reduce
 import os
 dir_path = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(dir_path, '..', '..'))
-sys.path.append(os.path.join(dir_path, '..', '..', 'task_2'))
+sys.path.append(os.path.join(dir_path, '..', '..')) # To import modules from task_2 folder
+sys.path.append(os.path.join(dir_path, '..', '..', 'task_2')) # Setting task_2 as path will avoid having to re-write module imports in task_2 files
 import task_2.pmx
 
 def genetic(num_cities, population_size):
@@ -31,7 +31,6 @@ def evaluate_population(distance_dataset, population):
     } for individual in population]
 
 def get_probability_distribution(population):
-    # Stochastic universal sampling
     worst = max(map((lambda x: x['route_distance']), population))
     fitness_list = list(map((lambda x: worst - x['route_distance']), population))
     total_fitness = reduce((lambda x, y: x + y), fitness_list, 0)
@@ -53,6 +52,7 @@ def get_index_at_point(probability_distribution, point):
     return 0
 
 def generate_mating_pool(population, num_parents):
+    # Stochastic universal sampling
     probability_distribution = get_probability_distribution(population)
 
     pointer = random.random() * (1 / num_parents)
@@ -64,6 +64,9 @@ def generate_mating_pool(population, num_parents):
 
     return mating_pool
 
+def mutate(route):
+    return distance_helper.swap_random(route)
+
 def generate_offspring(parents, num_offspring):
     offspring = []
 
@@ -72,6 +75,11 @@ def generate_offspring(parents, num_offspring):
         parent_2 = parents[random.randint(0, len(parents) - 1)]
 
         child_1, child_2 = task_2.pmx.partial_mapped_crossover(parent_1, parent_2)
+        if random.random() < 0.5:
+            child_1 = mutate(child_1)
+        if random.random() < 0.5:
+            child_2 = mutate(child_2)
+
         offspring.append(child_1)
         if len(offspring) < num_offspring:
             offspring.append(child_2)
@@ -95,10 +103,10 @@ def find_shortest_path_for_cities(distance_dataset, num_cities, population_size)
 
     cities = list(distance_dataset[0][0:num_cities])
     population = generate_population(cities, population_size)
-    stop_at_iter = 200
-    num_iter = 0
+    stop_at_generation = 1000
+    num_generation = 0
 
-    while num_iter < stop_at_iter:
+    while num_generation < stop_at_generation:
         evaluated_population = evaluate_population(distance_dataset, population)
         num_parents = population_size / 2
         num_offspring = population_size - num_parents
@@ -107,7 +115,7 @@ def find_shortest_path_for_cities(distance_dataset, num_cities, population_size)
 
         offspring = generate_offspring(parents, num_offspring)
         population = parents + offspring
-        num_iter = num_iter + 1
+        num_generation = num_generation + 1
 
     shortest = get_shortest_route(distance_dataset, population)
     end = time()
@@ -115,8 +123,8 @@ def find_shortest_path_for_cities(distance_dataset, num_cities, population_size)
     return shortest, end-start
 
 if __name__ == '__main__':
-    num_cities = 12
-    population_size = 20
+    num_cities = 5
+    population_size = 50
     if len(sys.argv) > 1:
         num_cities = int(sys.argv[1])
 

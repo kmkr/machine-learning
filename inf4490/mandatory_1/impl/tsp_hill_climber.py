@@ -14,16 +14,6 @@ def hill_climber(num_cities):
     distance_dataset = csv_reader.read_file('european_cities.csv')
     return find_shortest_path_for_cities(distance_dataset, num_cities)
 
-def swap_random(route):
-    idx_1 = 0
-    idx_2 = 0
-    while idx_1 == idx_2:
-        idx_1 = random.randint(0, len(route) - 1)
-        idx_2 = random.randint(0, len(route) - 1)
-
-    route[idx_1], route[idx_2] = route[idx_2], route[idx_1]
-    return route
-
 def find_shortest_path_for_cities(distance_dataset, num_cities):
     current_route = list(distance_dataset[0][0:num_cities])
     random.shuffle(current_route)
@@ -42,7 +32,7 @@ def find_shortest_path_for_cities(distance_dataset, num_cities):
     # print 'Iteration 0: ' + str(current_route)
 
     while num_iterations < max_iterations and num_iterations_without_change < max_iterations_without_change:
-        candidate_route = swap_random(current_route[:])
+        candidate_route = distance_helper.swap_random(current_route[:])
         distance = distance_helper.get_route_distance(distance_dataset, candidate_route)
         change = distance - shortest['distance']
         if change > 0 and change <= change_threshold:
