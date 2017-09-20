@@ -64,33 +64,31 @@ This section describes the results using a hill climber implementation to find t
 Key properties for the implementation are shown below.
 
 \begin{itemize}
-    \item A random permutation is chosen as a starting point and it's total route distance is calculated.
-    \item The position of two random cities in the permutation are swapped and the route distance is calculated.
+    \item A random permutation (route) is chosen as a starting point for the algorithm.
+    \item The total route distance for the route is calculated.
+    \item The position of two random cities in the route are swapped and the route distance is calculated.
     \item If the new route distance is shorter than the previous one, update the pointer of the best route.
     \item Repeat until the maximum amount of total iterations are reached (set to 5000), or maximum amount of iterations (set to 50) with a change below a threshold (300) is reached.
 \end{itemize}
 
 \subsection*{Results}
 
-The algorithm is stochastic and the result can differ between each run. Multiple executions of the hill climber algorithm must therefore run to be able to compare it to the exhaustive search algorithm. Twenty iterations were used for the comparison.
-
-
+The algorithm is stochastic and the result can differ between each run. Multiple iterations of the hill climber algorithm must therefore run to be able to compare it to the exhaustive search algorithm. Twenty iterations were used for the comparison.
 
 \begin{center}
 \begin{tabular}{lcc}
 \toprule
 Measurement & Ten first cities & All cities \\
 \midrule
-Best & $7486.31$ & $127\,59.8$ \\
-Worst & $8407.18$ & $15\,209.07$ \\
-Mean & $7747.34$ & $14\,005.63$ \\
+Best & $7\,486.31$ & $127\,59.8$ \\
+Worst & $8\,407.18$ & $15\,209.07$ \\
+Mean & $7\,747.34$ & $14\,005.63$ \\
 Standard deviation & $346.35$ & $821.67$ \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-The hill climber found the optimal solution for the case of the ten first cities. We don't have the optimal solution for all cities so we don't know in that case.
-
+The hill climber found the optimal solution for the case of the ten first cities (the optimal solution was found with the exhaustive search). The optimal solution for all cities is unknown.
 
 \subsection*{How to run the program}
 
@@ -100,10 +98,82 @@ Execute the \texttt{tsp\_hill\_climber.py} file with the amount of cities to che
 $ python tsp_hill_climber.py 24
 
 Hill climber search using first 24 cities. Running in total 20
-executions.
+iterations.
 Best   12759.8
 Worst  15209.069999999998
 Mean   14005.635999999999
 stdev  821.6690607307211
 \end{verbatim}
+
+
+\section*{Genetic Algorithm}
+
+This section describes the results using a genetic algorithm for finding the shortest path. This is a permutation problem, so the crossover and mutation operators must be chosen accordingly. The phenotype space is the set of city names. The crossover algorithm used is partial mapped crossover that supports array of city names as input, so the genotype is the same as the phenotype.
+
+\subsection*{Implementation}
+
+The genetic algorithm runs in total three rounds, each time with a different population size. Number of iterations for each round is set to 20. The individuals in the population are all \textit{routes}, e.g. Berlin $\rightarrow$ Barcelona $\rightarrow$ $\ldots$ $\rightarrow$ Belgrade. Each individual is a permutation of the  has the same number of cities (genes).
+The general steps for the implementation are shown below.
+
+\begin{enumerate}
+    \item An initial population is randomly generated.
+    \item The fitness for each individual is calculated. The fitness is based on the total route distance for the individual, compared to the total route distance for the entire population. The shortest route has the highest fitness.
+    \item The number of parents is half the population size, and parents are chosen using a stochastic universal sampling (SUS) method to avoid selection bias.
+    \item Offspring is created using a partial mapped crossover algorithm. The number of offspring is double the amount of the population.
+    \item A $\mu,\lambda$ selection is used to form the next generation. All parents are discarded, and the fittest half of the $2 \times \lambda$ offspring are selected for the next generation.
+\end{enumerate}
+
+\subsubsection*{Number of generations}
+
+Skriv noe om at det konvergerte mot en løsning og at antall generasjoner ikke trengte å være så høy.
+
+\subsection*{Results}
+
+Population size 50
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+Measurement & Ten first cities & All cities \\
+\midrule
+Best & $7\,486.31$ & $12\,340.50$ \\
+Worst & $7\,503.10$ & $15\,394.07$ \\
+Mean & $7\,489.67$ & $14\,064.51$ \\
+Standard deviation & $3.38$ & $819.11$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Population size 100
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+Measurement & Ten first cities & All cities \\
+\midrule
+Best & $7\,486.31$ & $12\,493.47$ \\
+Worst & $7\,486.31$ & $15\,850.64$ \\
+Mean & $7\,486.31$ & $13\,657.37$ \\
+Standard deviation & $6.10$ & $887.05$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Population size 200
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+Measurement & Ten first cities & All cities \\
+\midrule
+Best & $7\,486.31$ & $12\,334.35$ \\
+Worst & $7\,486.31$ & $14\,680.17$ \\
+Mean & $7\,486.31$ & $13\,319.50$ \\
+Standard deviation & $\approx 0$ & $621.72$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Noter noe om at alle 10-city med pop 100+ fant den riktige verdien
+
 \end{document}
