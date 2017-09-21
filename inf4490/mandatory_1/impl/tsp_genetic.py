@@ -17,8 +17,14 @@ import task_2.pmx
 MAX_GENERATIONS = 100
 MAX_WITHOUT_CHANGE = 10
 NUM_EXECUTIONS = 20
+SINGLE_SWAP_MUTATION_PROBABILITY = 0.6
+DOUBLE_SWAP_MUTATION_PROBABILITY = 0.4
+
+num_convergence = 0
 
 def genetic(num_cities, population_size):
+    global num_convergence
+    num_convergence = 0
     distance_dataset = data.csv_reader.read_file('european_cities.csv')
     return find_shortest_path_for_cities(distance_dataset, num_cities, population_size)
 
@@ -37,13 +43,13 @@ def evaluate_population(distance_dataset, population):
     } for individual in population]
 
 def get_probability_distribution(distances):
+    global num_convergence
     worst = max(distances)
     fitness_list = [worst - distance for distance in distances]
     total_fitness = sum(fitness_list)
 
     if total_fitness == 0:
-        # Convergence
-        # Fikses med fitness sharing / crowding ?
+        num_convergence = num_convergence + 1
         return [0] * len(distances)
 
     return [(fitness / total_fitness) for fitness in fitness_list]
@@ -71,7 +77,13 @@ def stochastic_universal_sampling(evaluated_population, num_individuals):
     return mating_pool
 
 def mutate(route):
-    return mutation_helper.swap_random(route)
+    rnd = random.random()
+    if rnd < DOUBLE_SWAP_MUTATION_PROBABILITY:
+        route = mutation_helper.swap_random(route)
+    if rnd < SINGLE_SWAP_MUTATION_PROBABILITY:
+        route = mutation_helper.swap_random(route)
+
+    return route
 
 def generate_offspring(parents, num_offspring):
     offspring = []
@@ -81,10 +93,8 @@ def generate_offspring(parents, num_offspring):
         parent_2 = parents[random.randint(0, len(parents) - 1)]
 
         child_1, child_2 = task_2.pmx.partial_mapped_crossover(parent_1, parent_2)
-        if random.random() < 0.5:
-            child_1 = mutate(child_1)
-        if random.random() < 0.5:
-            child_2 = mutate(child_2)
+        child_1 = mutate(child_1)
+        child_2 = mutate(child_2)
 
         offspring.append(child_1)
         if len(offspring) < num_offspring:
@@ -157,6 +167,7 @@ def run(num_cities, population_size):
     print('Mean     ' + str(sum(distances) / NUM_EXECUTIONS))
     print('stdev    ' + str(statistics.stdev(distances)))
     print('duration ' + str(total_duration))
+    print('num conv ' + str(num_convergence))
     print('\n\n')
 
     return shortest_per_generation
