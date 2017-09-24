@@ -11,7 +11,7 @@
 
 \maketitle
 
-\noindent This report describes four different methods for finding short routes for a set of cities, also known as the travelling salesman problem. Results for each method is listed. The tests are executed on a Linux i5-4670 CPU @ 3.40GHz computer. The four methods are:
+\noindent This report describes four different methods for optimizing route distance for a set of cities, also known as the travelling salesman problem. The four methods are:
 
 \begin{enumerate}
     \item Exhaustive search
@@ -22,12 +22,12 @@
 
 \section*{Exhaustive Search}
 
-This algorithm is guaranteed to find the shortest path since all possible permutations are evaluated. From the set of the following ten cities, the path found to be shortest is Copenhagen $\rightarrow$ Hamburg $\rightarrow$ Brussels $\rightarrow$ Dublin $\rightarrow$ Barcelona $\rightarrow$ Belgrade $\rightarrow$ Istanbul $\rightarrow$ Bucharest $\rightarrow$ Budapest $\rightarrow$ Berlin. The total distance for the route is $7\,486.31$ km, and the solution was found using $21.25$ seconds. A single core was used when running the program, so exploiting the multi-core architecture would be a possible improvement to the program.\\
+This algorithm is guaranteed to find the shortest path since all possible permutations are evaluated. From the set of the following ten cities, the path found to be shortest is Copenhagen $\rightarrow$ Hamburg $\rightarrow$ Brussels $\rightarrow$ Dublin $\rightarrow$ Barcelona $\rightarrow$ Belgrade $\rightarrow$ Istanbul $\rightarrow$ Bucharest $\rightarrow$ Budapest $\rightarrow$ Berlin. The total distance for the route is $7\,486.31$ km, and the solution was found using $21.25$ seconds\footnote{The computer used to run all implemented algorithms is a Linux i5-4670 CPU @ 3.40GHz.}. A single core was used when running the program, so exploiting the multi-core architecture would be a possible improvement to the program.  \\
 
 \begin{center}
 \begin{tabular}{crr}
 \toprule
-Number of cities & Permutations & Execution time (seconds) \\
+Number of cities & Permutations & Execution time (seconds)\\
 \midrule
 $5$ & $120$ & $0.00035$ \\
 $6$ & $720$ & $0.0044$ \\
@@ -80,7 +80,7 @@ Key properties for the implementation are shown below.
 
 \subsection*{Results}
 
-The algorithm is stochastic and the result can differ between each run. Multiple iterations of the hill climber algorithm must therefore run to be able to compare it to the exhaustive search algorithm. Twenty iterations were used for the comparison.
+Due to the stochastic nature of the algorithm, each result may be different. Twenty executions were used to get the numbers listed below.
 
 \begin{center}
 \begin{tabular}{lcc}
@@ -115,11 +115,11 @@ stdev  821.6690607307211
 
 \section*{Genetic Algorithm}
 
-This section describes the results using a genetic algorithm for finding the shortest path. The travelling salesman problem is a permutation problem, so the crossover and mutation operators must be chosen accordingly. The phenotype space is the set of city names. The crossover algorithm used is a partial mapped crossover algorithm. The algorithm is written to support array of city names as input so the genotype space can be the same as the phenotype.
+This section describes the results using a genetic algorithm to find the shortest path. The travelling salesman problem is a permutation problem, so the crossover and mutation operators must be chosen accordingly. The phenotype space is the set of city names. The crossover algorithm used is a partial mapped crossover algorithm. The algorithm is written to support array of city names as input so the genotype space can be the same as the phenotype.
 
 \subsection*{Implementation}
 
-The genetic algorithm runs three rounds, with population size set to 50 the first round, 100 for the second and 200 for the third. Number of executions for each round is set to 20 and the best of these exeuctions wins the round. Each execution has 100 generations.
+The genetic algorithm runs three rounds with population size set to 50 the first round, 100 for the second and 200 for the third. Number of executions in each round is set to 20, and the best of these executions wins the round. Each execution iterates 100 generations to improve the population. A subset of the offspring is selected to form each of the following generations.
 
 As with the previous tasks, all individuals in the population are \textit{routes}, e.g. Berlin $\rightarrow$ Barcelona $\rightarrow$ $\ldots$ $\rightarrow$ Belgrade. Each individual has the same number of cities (genes). The general steps for the implementation are shown below.
 
@@ -450,8 +450,99 @@ coordinates {
 \end{tikzpicture}
 
 
-\subsection*{Baldwinian learning model}
+\subsection*{Results using the Baldwinian learning model}
 
-????
+The difference from the Baldwinian model compared to the Lamarckian is that improvements from the hill climber are only used to prioritize the population, and \textit{discard the changes}. The results below shows the best of the 20 executions for the three different population sizes.
+
+\subsubsection*{Population size 50}
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+Measurement & Ten cities & All cities \\
+\midrule
+Best & $7\,486.31$ km & $13\,670.69$ km \\
+Worst & $7\,663.51$ & $15\,599.32$ \\
+Mean & $7\,516.82$ & $14\,462.36$ \\
+Standard deviation & $54.85$ & $659.37$ \\
+Execution time & $23.39$ s & $53.71$ s \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsubsection*{Population size 100}
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+Measurement & Ten cities & All cities \\
+\midrule
+Best & $7\,486.31$ km & $12\,744.34$ km \\
+Worst & $7\,680.49$ & $15\,415.12$ \\
+Mean & $7\,500.84$ & $13\,993.13$ \\
+Standard deviation & $44.72$ & $750.64$ \\
+Execution time & $47.01$ s & $108.26$ s \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsubsection*{Population size 200}
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+Measurement & Ten cities & All cities \\
+\midrule
+Best & $7\,486.31$ km & $12\,679.14$ km \\
+Worst & $7\,737.95$ & $14\,794.53$ \\
+Mean & $7\,521.14$ & $13\,835.83$ \\
+Standard deviation & $78.49$ & $573.73$ \\
+Execution time & $95.04$ s & $218.01$ s \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsubsection*{Average values}
+
+The following graph shows each generation's best value in average of the three population sizes (10 cities).
+
+\begin{tikzpicture}
+\begin{axis}[
+    xlabel={Generation},
+    ylabel={Kilometers},
+    xmin=0, xmax=100,
+    ymin=7000, ymax=9000,
+    xtick={0,20,40,60,80,100},
+    ytick={7500,8000,8500,9000}
+]
+\addplot[
+]
+coordinates {
+    (0,8573.74)(1,8448.90333333)(2,7989.92666667)(3,7982.16666667)(4,8049.21333333)(5,7746.50333333)(6,7741.48666667)(7,7754.73666667)(8,7831.64)(9,7840.16)(10,8021.6)(11,7771.73333333)(12,8056.32666667)(13,8150.92333333)(14,7831.63333333)(15,7760.07)(16,7813.59333333)(17,7715.75333333)(18,7747.39)(19,7752.98666667)(20,7781.94)(21,7709.27333333)(22,7775.48)(23,7779.78333333)(24,7803.58666667)(25,7670.91333333)(26,7691.00333333)(27,7744.35)(28,7767.11333333)(29,7698.54)(30,7631.87333333)(31,7610.10333333)(32,7551.03666667)(33,7550.97333333)(34,7571.98666667)(35,7631.11666667)(36,7631.11666667)(37,7631.11666667)(38,7615.76333333)(39,7631.05333333)(40,7709.27333333)(41,7705.56)(42,7571.98666667)(43,7566.39)(44,7567.21)(45,7551.03666667)(46,7582.57333333)(47,7579.92666667)(48,7545.44)(49,7681.78666667)(50,7592.93666667)(51,7566.32666667)(52,7588.16)(53,7572.80666667)(54,7588.16)(55,7567.21)(56,7653.48333333)(57,7668.85)(58,7567.21)(59,7629.32)(60,7614.50666667)(61,7600.87666667)(62,7588.16)(63,7679.23333333)(64,7582.57333333)(65,7491.90666667)(66,7551.03666667)(67,7551.03666667)(68,7507.26)(69,7556.63333333)(70,7588.17)(71,7631.93666667)(72,7525.28666667)(73,7620.10333333)(74,7571.98666667)(75,7551.03666667)(76,7644.65333333)(77,7652.67666667)(78,7556.63333333)(79,7652.89666667)(80,7665.60333333)(81,7571.92333333)(82,7630.99)(83,7686.21333333)(84,7668.18666667)(85,7545.44)(86,7630.06)(87,7587.34)(88,7624.47333333)(89,7626.25333333)(90,7656.40666667)(91,7646.43)(92,7566.32666667)(93,7550.97333333)(94,7566.32666667)(95,7572.80666667)(96,7507.26)(97,7528.21)(98,7512.85666667)(99,7491.90666667)
+};
+\legend{Route distance}
+\end{axis}
+\end{tikzpicture}
+
+\noindent The following graph shows each generation's best value in average of the three population sizes (24 cities).
+
+\begin{tikzpicture}
+\begin{axis}[
+    xlabel={Generation},
+    ylabel={Kilometers},
+    xmin=0, xmax=100,
+    ymin=12000, ymax=26000,
+    xtick={0,20,40,60,80,100},
+    ytick={14000,18000,22000}
+]
+\addplot[
+]
+coordinates {
+    (0,25815.38333333)(1,24028.17)(2,23436.20666667)(3,23220.38333333)(4,21830.04666667)(5,22081.40333333)(6,22015.86)(7,21469.11)(8,21861.51333333)(9,21932.15333333)(10,21616.46)(11,20819.58333333)(12,20882.74)(13,19970.04333333)(14,19560.92666667)(15,19795.54666667)(16,19582.13)(17,19615.22333333)(18,19137.85333333)(19,18639.92333333)(20,19420.48666667)(21,18423.24)(22,18940.43)(23,18806.57333333)(24,18909.59)(25,18242.23333333)(26,18775.51333333)(27,18466.64333333)(28,18515.43)(29,17834.96)(30,17402.35)(31,17560.04333333)(32,17247.07333333)(33,16969.15333333)(34,16879.94333333)(35,16787.8)(36,16809.87333333)(37,16855.99333333)(38,17003.99666667)(39,16701.4)(40,16409.12666667)(41,16620.26)(42,16271.34)(43,16431.08)(44,16757.41333333)(45,16306.73)(46,16116.14)(47,15915.15333333)(48,15885.87666667)(49,15791.81666667)(50,15631.53666667)(51,15538.06)(52,15544.64)(53,15480.73666667)(54,15379.40666667)(55,15260.02666667)(56,15371.68333333)(57,15159.82333333)(58,14934.05666667)(59,15187.34666667)(60,15355.09666667)(61,14770.87666667)(62,14984.50333333)(63,14807.7)(64,14890.93)(65,14848.00333333)(66,14767.81333333)(67,14767.81333333)(68,14770.75666667)(69,14627.99)(70,14568.86)(71,14534.67666667)(72,14534.67666667)(73,14628.70333333)(74,14570.41333333)(75,14397.08333333)(76,14229.43)(77,14303.06)(78,14386.98666667)(79,14203.57)(80,14162.19)(81,14162.19)(82,14218.41333333)(83,14133.31666667)(84,14121.20333333)(85,13958.51666667)(86,13942.89666667)(87,13942.89666667)(88,13883.76666667)(89,14040.20333333)(90,14032.32)(91,14046.73333333)(92,14089.86)(93,14120.96666667)(94,14154.37666667)(95,14026.83)(96,13911.66666667)(97,13985.70333333)(98,13923.58)(99,13923.58)
+};
+\legend{Route distance}
+\end{axis}
+\end{tikzpicture}
+
 
 \end{document}
