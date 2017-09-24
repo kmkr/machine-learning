@@ -1,5 +1,5 @@
-import mutation.mutation_helper as mutation_helper;
-import distance.distance_helper as distance_helper;
+import mutation.mutation_helper as mutation_helper
+import distance.distance_helper as distance_helper
 
 MAX_ITERATIONS_WITHOUT_CHANGE = 50
 CHANGE_THRESHOLD = 300
@@ -29,6 +29,6 @@ def hill_climb(distance_dataset, route, max_iterations):
                 'route_distance': distance,
                 'route': candidate_route
             }
-            current_route = candidate_route
+            route = candidate_route
 
     return shortest
