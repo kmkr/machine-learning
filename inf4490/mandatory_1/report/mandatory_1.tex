@@ -10,24 +10,30 @@
 \begin{document}
 
 \maketitle
+
+\noindent This report describes four different methods for finding short routes for a set of cities, also known as the travelling salesman problem. Results for each method is listed. The tests are executed on a Linux i5-4670 CPU @ 3.40GHz computer. The four methods are:
+
+\begin{enumerate}
+    \item Exhaustive search
+    \item Hill climber
+    \item Genetic algorithm
+    \item Hybrid of 2) and 3).
+\end{enumerate}
+
 \section*{Exhaustive Search}
 
-This section describes the results using an exhaustive search implementation for finding the shortest path of a set of cities, also known as the travelling salesman problem. Since an exhaustive search verifies all possible permutations, the algorithm is guaranteed to find the shortest path. See
-
-From the set of the following ten cities, the path found to be shortest is Copenhagen $\rightarrow$ Hamburg $\rightarrow$ Brussels $\rightarrow$ Dublin $\rightarrow$ Barcelona $\rightarrow$ Belgrade $\rightarrow$ Istanbul $\rightarrow$ Bucharest $\rightarrow$ Budapest $\rightarrow$ Berlin. The total distance for the route is 7486.31 km.\\
-
-\noindent The solution was found using 21.25 seconds on a Linux i5-4670 CPU @ 3.40GHz. A single core was used when running the program, so exploiting the multi-core architecture would be a possible improvement to the program.\\
+This algorithm is guaranteed to find the shortest path since all possible permutations are evaluated. From the set of the following ten cities, the path found to be shortest is Copenhagen $\rightarrow$ Hamburg $\rightarrow$ Brussels $\rightarrow$ Dublin $\rightarrow$ Barcelona $\rightarrow$ Belgrade $\rightarrow$ Istanbul $\rightarrow$ Bucharest $\rightarrow$ Budapest $\rightarrow$ Berlin. The total distance for the route is $7\,486.31$ km, and the solution was found using $21.25$ seconds. A single core was used when running the program, so exploiting the multi-core architecture would be a possible improvement to the program.\\
 
 \begin{center}
 \begin{tabular}{crr}
 \toprule
 Number of cities & Permutations & Execution time (seconds) \\
 \midrule
-$5$ & $120$ & $0.000349998474121$ \\
-$6$ & $720$ & $0.00444889068604$ \\
-$7$ & $5\,040$ & $0.0201399326324$ \\
-$8$ & $40\,320$ & $0.219367980957$ \\
-$9$ & $362\,880$ & $1.87963008881$ \\
+$5$ & $120$ & $0.00035$ \\
+$6$ & $720$ & $0.0044$ \\
+$7$ & $5\,040$ & $0.020$ \\
+$8$ & $40\,320$ & $0.22$ \\
+$9$ & $362\,880$ & $1.88$ \\
 $10$ & $3\,628\,800$ & $21.25$ \\
 $11$ & $39\,916\,800$ & $258$ \\
 $12$ & $479\,001\,600$ & $3406.87$ \\
@@ -35,7 +41,7 @@ $12$ & $479\,001\,600$ & $3406.87$ \\
 \end{tabular}
 \end{center}
 
-\noindent Difference in execution time corresponds to the number of permutations. The amount of permutations is factorial ($O(n!)$), so based on the results above, the expected running time for all 24 cities would be approximately $3406.87 * 13 * 14 * 15 * 16 * 17 * 18 * 19 * 20 * 21 * 22 * 23 * 24 \approx 4.41 \times 10^{18}$ seconds.
+\noindent Difference in execution time corresponds to the number of permutations. The amount of permutations is factorial ($O(n!)$), so based on the results above, the expected running time for all 24 cities would be approximately $3406.87 * 13 * 14 * \ldots * 24 \approx 4.41 \times 10^{18}$ seconds ($141\,962\,633\,400$ years).
 
 \subsection*{How to run the program}
 
@@ -58,7 +64,7 @@ $ python -m unittest discover -p '*_test.py'
 
 \section*{Hill Climber}
 
-This section describes the results using a hill climber implementation to find the shortest path.
+This section describes the results using a hill climber implementation to find the shortest path. In contrast to the exhaustive search, this algorithm is not guaranteed to find the global optima.
 
 \subsection*{Implementation}
 
@@ -110,11 +116,11 @@ stdev  821.6690607307211
 
 \section*{Genetic Algorithm}
 
-This section describes the results using a genetic algorithm for finding the shortest path. This is a permutation problem, so the crossover and mutation operators must be chosen accordingly. The phenotype space is the set of city names. The crossover algorithm used is partial mapped crossover that supports array of city names as input, so the genotype is the same as the phenotype.
+This section describes the results using a genetic algorithm for finding the shortest path. The travelling salesman problem is a permutation problem, so the crossover and mutation operators must be chosen accordingly. The phenotype space is the set of city names. The crossover algorithm used is a partial mapped crossover algorithm. The algorithm is written to support array of city names as input so the genotype space can be the same as the phenotype.
 
 \subsection*{Implementation}
 
-The genetic algorithm runs three rounds, with population size set to 50 the first round, 100 for the second and 200 for the third. Number of executions for each round is set to 20 and the best of these exeuctions is used. Each execution has 100 generations.
+The genetic algorithm runs three rounds, with population size set to 50 the first round, 100 for the second and 200 for the third. Number of executions for each round is set to 20 and the best of these exeuctions wins the round. Each execution has 100 generations.
 
 As with the previous tasks, all individuals in the population are \textit{routes}, e.g. Berlin $\rightarrow$ Barcelona $\rightarrow$ $\ldots$ $\rightarrow$ Belgrade. Each individual has the same number of cities (genes). The general steps for the implementation are shown below.
 
