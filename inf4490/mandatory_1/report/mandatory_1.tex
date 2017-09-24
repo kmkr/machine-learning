@@ -302,11 +302,13 @@ coordinates {
 \end{axis}
 \end{tikzpicture}
 
-\subsubsection*{Conclusion}
+\subsection*{Conclusion}
 
 Based on the results shown above, the different population sizes chosen doesn't affect the result noticably. The improvement per generation is approximately the same for all three population sizes, and the improvement rate converges at around 25 generations for 10 cities, and 50-60 generations for 24 cities. In this example, the lowest population size of 50 performed best in regards to finding the shortest route \textit{and} execution time. Although the difference is low, it's noticable when including all cities. However, due to the stochastic nature of the algorithm and the low difference in results, I cannot conclude that the population size of 50 will be the best in all runs.
 
-For the case of 10 cities, the shortest route was found for all three population sizes. For the 24 cities, the shortest route found was $12\,287$ km. In regards to execution time, the GA is slower than the Hill Climber algorithm as shown in the following table.
+\subsubsection*{Execution time}
+
+For the case of 10 cities, the shortest route was found for all three population sizes. For the 24 cities, the shortest route found was $12\,287$ km. In regards to execution time, the GA is slower than the Hill Climber algorithm, but faster than the exhaustive search for all tested population sizes. The following table displays the results.
 
 \begin{center}
 \begin{tabular}{lcc}
@@ -314,11 +316,35 @@ For the case of 10 cities, the shortest route was found for all three population
 Algorithm & Ten cities & All cities \\
 \midrule
 Hill climber & $0.94$ s & $2.09$ s \\
-Genetic population 50 & $3.64$ & $7.99$ \\
-Genetic population 100 & $7.44$ & $16.18$ \\
-Genetic population 200 & $15.33$ & $33.12$ \\
+Exhaustive search & $21.25$ & $4.41 \times 10^{18}$ (estimated) \\
+Genetic (population 50) & $3.64$ & $7.99$ \\
+Genetic (population 100) & $7.44$ & $16.18$ \\
+Genetic (population 200) & $15.33$ & $33.12$ \\
 \bottomrule
 \end{tabular}
 \end{center}
+
+\subsubsection*{Tours inspected}
+
+All permutations ($O(n!)$) are inspected in the exhaustive search. The GA inspects the population size $\lambda$ for each of the generations times the executions. Note that the number of inspected routes for the GA is not correlated with the number of cities. When $\lambda = 50$, number of generations $= 100$ with $20$ executions the number of inspected routes are as follows.
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+Algorithm & Ten cities & All cities \\
+\midrule
+Exhaustive search & $3\,628\,800$ & $620\,448\,401\,733\,239\,439\,360\,000$ \\
+Genetic (population 50) & $100\,000$ & $100\,000$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{How to run the program}
+
+Execute the \texttt{tsp\_genetic.py} file with the amount of cities to check.
+
+\begin{verbatim}
+$ python tsp_genetic.py 24
+\end{verbatim}
 
 \end{document}
