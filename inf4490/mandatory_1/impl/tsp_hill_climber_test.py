@@ -19,7 +19,7 @@ class TestHillClimber(unittest.TestCase):
         )
 
         # Cannot guarantee to find the best solution
-        self.assertGreater(result['distance'], 1)
+        self.assertGreater(result['route_distance'], 1)
         self.assertTrue(len(result['route']), len(self.distance_dataset[0]))
 
 if __name__ == '__main__':

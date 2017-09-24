@@ -1,15 +1,12 @@
 import data.csv_reader
 import math
-import distance.distance_helper as distance_helper;
-import mutation.mutation_helper as mutation_helper;
 import sys
 import random
 import statistics
+from hill_climber.hill_climb import hill_climb
 from time import time
 
-max_iterations = 5000
-max_iterations_without_change = 50
-change_threshold = 300
+MAX_ITERATIONS = 5000
 
 def hill_climber(num_cities):
     distance_dataset = data.csv_reader.read_file('european_cities.csv')
@@ -19,37 +16,8 @@ def find_shortest_path_for_cities(distance_dataset, num_cities):
     current_route = list(distance_dataset[0][0:num_cities])
     random.shuffle(current_route)
     num_permutations = len(current_route)
-
-    shortest = {
-        'distance': distance_helper.get_route_distance(distance_dataset, current_route),
-        'route': current_route
-    }
-
     start = time()
-
-    num_iterations = 0
-    num_iterations_without_change = 0
-
-    # print 'Iteration 0: ' + str(current_route)
-
-    while num_iterations < max_iterations and num_iterations_without_change < max_iterations_without_change:
-        candidate_route = mutation_helper.swap_random(current_route[:])
-        distance = distance_helper.get_route_distance(distance_dataset, candidate_route)
-        change = distance - shortest['distance']
-        if change > 0 and change <= change_threshold:
-            num_iterations_without_change = num_iterations_without_change + 1
-        else:
-            num_iterations_without_change = 0
-
-        num_iterations = num_iterations + 1
-
-        if shortest['distance'] > distance:
-            shortest = {
-                'distance': distance,
-                'route': candidate_route
-            }
-            current_route = candidate_route
-
+    shortest = hill_climb(distance_dataset, current_route, MAX_ITERATIONS)
     end = time()
     return shortest, end-start
 
@@ -66,12 +34,12 @@ if __name__ == '__main__':
     print('Hill climber search using first ' + str(num_cities) + ' cities. Running in total ' + str(num_executions) + ' executions.')
     for i in range(num_executions):
         shortest, duration = hill_climber(num_cities)
-        if shortest['distance'] < best:
-            best = shortest['distance']
-        if shortest['distance'] > worst:
-            worst = shortest['distance']
+        if shortest['route_distance'] < best:
+            best = shortest['route_distance']
+        if shortest['route_distance'] > worst:
+            worst = shortest['route_distance']
 
-        distances.append(shortest['distance'])
+        distances.append(shortest['route_distance'])
         total_duration = total_duration + duration
 
     print('Best     ' + str(best))

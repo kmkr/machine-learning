@@ -19,7 +19,7 @@ class TestTSPExhaustive(unittest.TestCase):
         )
 
         self.assertEqual(result, {
-            'distance': 4983.38,
+            'route_distance': 4983.38,
             'route': ('Barcelona', 'Belgrade', 'Bucharest', 'Berlin', 'Brussels')
         })
 

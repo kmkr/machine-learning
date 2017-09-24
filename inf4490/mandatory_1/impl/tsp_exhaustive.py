@@ -14,16 +14,16 @@ def find_shortest_path_for_cities(distance_dataset, num_cities):
     permutations = itertools.permutations(cities)
 
     shortest = {
-        'distance': float('inf')
+        'route_distance': float('inf')
     }
 
     start = time()
     for _, candidate_route in enumerate(permutations):
         distance = distance_helper.get_route_distance(distance_dataset, candidate_route)
 
-        if shortest['distance'] > distance:
+        if shortest['route_distance'] > distance:
             shortest = {
-                'distance': distance,
+                'route_distance': distance,
                 'route': candidate_route
             }
 

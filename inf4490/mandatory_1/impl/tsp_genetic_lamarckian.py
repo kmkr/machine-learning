@@ -4,7 +4,7 @@ from genetic.survivor_strategy import SurvivorStrategy
 
 if __name__ == '__main__':
     num_cities = int(sys.argv[1]) if len(sys.argv) > 1 else 5
-    results = genetic.genetic.run_three_variants(num_cities, SurvivorStrategy.BY_ROUTE_LENGTH)
+    results = genetic.genetic.run_three_variants(num_cities, SurvivorStrategy.HYBRID_HILL_LAMARCKIAN)
     print('Pop 50')
     print(results['50'])
     print('\nPop 100')
