@@ -20,11 +20,8 @@ NUM_EXECUTIONS = 20
 SINGLE_SWAP_MUTATION_PROBABILITY = 0.6
 DOUBLE_SWAP_MUTATION_PROBABILITY = 0.4
 
-num_convergence = 0
 
 def genetic(num_cities, population_size):
-    global num_convergence
-    num_convergence = 0
     distance_dataset = data.csv_reader.read_file('european_cities.csv')
     return find_shortest_path_for_cities(distance_dataset, num_cities, population_size)
 
@@ -43,13 +40,12 @@ def evaluate_population(distance_dataset, population):
     } for individual in population]
 
 def get_probability_distribution(distances):
-    global num_convergence
     worst = max(distances)
     fitness_list = [worst - distance for distance in distances]
     total_fitness = sum(fitness_list)
 
     if total_fitness == 0:
-        num_convergence = num_convergence + 1
+        # Convergence (the entire population has the same fitness value)
         return [0] * len(distances)
 
     return [(fitness / total_fitness) for fitness in fitness_list]
@@ -167,11 +163,9 @@ def run(num_cities, population_size):
     print('Mean     ' + str(sum(distances) / NUM_EXECUTIONS))
     print('stdev    ' + str(statistics.stdev(distances)))
     print('duration ' + str(total_duration))
-    print('num conv ' + str(num_convergence))
     print('\n\n')
 
     return shortest_per_generation
-
 
 def run_three_variants(num_cities):
     shortest_per_generation_50 = run(num_cities, 50)
