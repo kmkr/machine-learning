@@ -62,6 +62,7 @@ if __name__ == '__main__':
     worst = 0
     distances = []
     num_executions = 20
+    total_duration = 0
     print('Hill climber search using first ' + str(num_cities) + ' cities. Running in total ' + str(num_executions) + ' executions.')
     for i in range(num_executions):
         shortest, duration = hill_climber(num_cities)
@@ -71,8 +72,10 @@ if __name__ == '__main__':
             worst = shortest['distance']
 
         distances.append(shortest['distance'])
+        total_duration = total_duration + duration
 
-    print('Best   ' + str(best))
-    print('Worst  ' + str(worst))
-    print('Mean   ' + str(sum(distances) / num_executions))
-    print('stdev  ' + str(statistics.stdev(distances)))
+    print('Best     ' + str(best))
+    print('Worst    ' + str(worst))
+    print('Mean     ' + str(sum(distances) / num_executions))
+    print('stdev    ' + str(statistics.stdev(distances)))
+    print('duration ' + str(total_duration))
