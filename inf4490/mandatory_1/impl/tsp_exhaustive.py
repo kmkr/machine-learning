@@ -37,4 +37,4 @@ if __name__ == '__main__':
 
     print('Exhastive search using ' + str(num_cities) + ' first cities')
     shortest, duration = exhaustive_search(num_cities)
-    print('Found shortest ' + str(shortest) + ' in time ' + str(duration))
+    print('Found shortest ' + str(shortest) + ' in ' + str(duration) + ' seconds')

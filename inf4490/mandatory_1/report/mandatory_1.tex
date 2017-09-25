@@ -11,14 +11,17 @@
 
 \maketitle
 
-\noindent This report describes four different methods for optimizing route distance for a set of cities, also known as the travelling salesman problem. The four methods are:
+\noindent This report describes five different methods for optimizing route distance for a set of cities, also known as the travelling salesman problem. The five methods are:
 
 \begin{enumerate}
     \item Exhaustive search
     \item Hill climber
     \item Genetic algorithm
-    \item Hybrid of 2) and 3).
+    \item Hybrid of 2) and 3) using a Lamarckian learning model
+    \item Hybrid of 2) and 3) using a Baldwinian learning model
 \end{enumerate}
+
+\noindent Each method has an implemented algorithm written in Python. Python 3.4 or above is required to run some of the algorithms due to usage of the statistics library for standard deviation.
 
 \section*{Exhaustive Search}
 
@@ -41,11 +44,11 @@ $12$ & $479\,001\,600$ & $3406.87$ \\
 \end{tabular}
 \end{center}
 
-\noindent Difference in execution time corresponds to the number of permutations. The amount of permutations is factorial ($O(n!)$), so based on the results above, the expected running time for all 24 cities would be approximately $3406.87 * 13 * 14 * \ldots * 24 \approx 4.41 \times 10^{18}$ seconds ($141\,962\,633\,400$ years).
+\noindent Difference in execution time is proportional to the number of permutations. The amount of permutations is factorial ($O(n!)$), so based on the results above, the expected running time for all 24 cities would be approximately $3406.87 * 13 * 14 * \ldots * 24 \approx 4.41 \times 10^{18}$ seconds ($141\,962\,633\,400$ years).
 
 \subsection*{How to run the program}
 
-Execute the \texttt{tsp\_exhaustive.py} file with the amount of cities to check.
+Execute the \texttt{tsp\_exhaustive.py} file with the amount of cities to check. Grab a coffee if you choose 12 or more cities.
 
 \begin{verbatim}
 $ python tsp_exhaustive.py 5
@@ -53,18 +56,12 @@ $ python tsp_exhaustive.py 5
 Exhastive search using 5 first cities
 Found shortest {'distance': 4983.38, 'route': ('Barcelona',
 'Belgrade', 'Bucharest', 'Berlin', 'Brussels')} in
-time 0.00048303604126
-\end{verbatim}
-
-\noindent All modules have one or more unit tests to verify the implementation. To run all tests, use Python's unittest discovery:
-
-\begin{verbatim}
-$ python -m unittest discover -p '*_test.py'
+0.00048303604126 seconds
 \end{verbatim}
 
 \section*{Hill Climber}
 
-This section describes the results using a hill climber implementation to find the shortest path. In contrast to the exhaustive search, this algorithm is not guaranteed to find the global optima.
+This section describes the results using a hill climber implementation to find the shortest path. In contrast to the exhaustive search, this algorithm is not guaranteed to find the global optima but will run significantly faster as we will see.
 
 \subsection*{Implementation}
 
@@ -72,22 +69,22 @@ Key properties for the implementation are shown below.
 
 \begin{itemize}
     \item A random permutation (route) is chosen as a starting point for the algorithm.
-    \item The total route distance for the route is calculated.
-    \item The position of two random cities in the route are swapped and the route distance is calculated.
+    \item The total distance for the route is calculated.
+    \item The position of two random cities in the route are swapped, and the route distance is re-calculated.
     \item If the new route distance is shorter than the previous one, update the pointer of the best route.
-    \item Repeat until the maximum amount of total iterations are reached (set to 5000), or maximum amount of iterations (set to 50) with a change below a threshold (300) is reached.
+    \item Repeat until the maximum amount of total iterations are reached (set to $5000$), or maximum amount of iterations (set to $50$) with a change below a threshold (set to $300$ km) is reached.
 \end{itemize}
 
 \subsection*{Results}
 
-Due to the stochastic nature of the algorithm, each result may be different. Twenty executions were used to get the numbers listed below.
+Each result may be different due to the stochastic nature of the algorithm. Twenty executions were used to get the numbers listed below.
 
 \begin{center}
 \begin{tabular}{lcc}
 \toprule
 Measurement & Ten cities & All cities \\
 \midrule
-Best & $7\,486.31$ km & $127\,59.8$ km \\
+Best & $7\,486.31$ km & $12\,759.8$ km \\
 Worst & $8\,407.18$ & $15\,209.07$ \\
 Mean & $7\,747.34$ & $14\,005.63$ \\
 Standard deviation & $346.35$ & $821.67$ \\
@@ -96,11 +93,11 @@ Execution time & $0.94$ s & $2.09$ s \\
 \end{tabular}
 \end{center}
 
-The hill climber found the optimal solution for the case of the ten cities (the optimal solution was found with the exhaustive search). The optimal solution for all cities is unknown.
+\noindent Since the global optima was found in the exhaustive search, the results show that the hill climber found the shortest route for the case of the ten cities. The optimal solution for all cities is unknown.
 
 \subsection*{How to run the program}
 
-Execute the \texttt{tsp\_hill\_climber.py} file with the amount of cities to check. Note that Python 3.4 or later is required due to usage of the statistics library for standard deviation.
+Execute the \texttt{tsp\_hill\_climber.py} file with the amount of cities to check.
 
 \begin{verbatim}
 $ python tsp_hill_climber.py 24
@@ -121,15 +118,15 @@ This section describes the results using a genetic algorithm to find the shortes
 
 The genetic algorithm runs three rounds with population size set to 50 the first round, 100 for the second and 200 for the third. Number of executions in each round is set to 20, and the best of these executions wins the round. Each execution iterates 100 generations to improve the population. A subset of the offspring is selected to form each of the following generations.
 
-As with the previous tasks, all individuals in the population are \textit{routes}, e.g. Berlin $\rightarrow$ Barcelona $\rightarrow$ $\ldots$ $\rightarrow$ Belgrade. Each individual has the same number of cities (genes). The general steps for the implementation are shown below.
+As with the previous tasks, all individuals in the population are routes, e.g. Berlin $\rightarrow$ Barcelona $\rightarrow$ $\ldots$ $\rightarrow$ Belgrade. Each individual has the same number of cities (genes). The general steps for the implementation are shown below.
 
 \begin{enumerate}
     \item An initial population is randomly generated.
     \item The fitness for each individual is calculated. The fitness is based on the total route distance for the individual, compared to the total route distance for the entire population. The shortest route will have the highest fitness.
     \item The number of parents is set to half the population size, and parents are chosen using a stochastic universal sampling (SUS) method to avoid selection bias.
     \item Offspring is created using a partial mapped crossover algorithm. The number of offspring is set to double the amount of the population.
-    \item The mutation strategy is \textit{swap two genes} up to two times per child. The initial mutation strategy was swap up to one time with probability $50\%$, but had to be adjusted as the population in that case in almost all cases converged towards having the same fitness. Mutation probablity $60\%$ plus a second round of swap with probability $40\%$ elliminated this symptom in all cases I tested.
-    \item A $\mu,\lambda$ selection is used to form the next generation. All parents are discarded, and the fittest half of the $2 \times \lambda$ offspring are selected for the next generation.
+    \item The mutation strategy is \textit{swap two genes} up to two times per child. The initial mutation strategy was swap up to one time with probability $50\%$, but had to be adjusted as the population in that case in almost all cases converged towards having the same fitness. Mutation probablity $60\%$ plus a second round of swap with probability $40\%$ eliminated this symptom in all cases I tested.
+    \item A $\mu,\lambda$ selection is used to form the next generation. All parents are discarded, and half of the $2 \times \lambda$ offspring are selected for the next generation. Individuals are prioritized by their fitness level.
 \end{enumerate}
 
 \subsection*{Results}
@@ -353,11 +350,11 @@ $ python tsp_genetic.py 24
 
 \section*{Hybrid Algorithm}
 
-This section describes the result when combining hill climbing with the genetic algorithm. The two algorithms are merged by running the genetic algorithm with one change: Each individual is attempted improved using the hill climber before selecting survivors for the next generation. There are two variants to this strategy, \textbf{the Lamarckian} and the \textbf{the Baldwinian}.
+This section describes the result when combining hill climbing with the genetic algorithm. The hill climber improves (or tries to improve) each individual before selecting survivors for next generation. Otherwise, run the genetic algorithm as described in the previous section. There are two variants to this strategy, \textbf{the Lamarckian} and the \textbf{the Baldwinian}, and they differ in how the hill climber results are used for the genotype of the upcoming generation.
 
 \subsection*{Results using the Lamarckian learning model}
 
-The results from the hill climber are \textit{kept in the genotype} for the Lamarckian learning model. The results below shows the best of the 20 executions for the three different population sizes.
+The results from the hill climber are \textit{kept in the genotype} in the Lamarckian learning model. The results below shows the best of the 20 executions for the three different population sizes.
 
 \subsubsection*{Population size 50}
 
@@ -452,7 +449,7 @@ coordinates {
 
 \subsection*{Results using the Baldwinian learning model}
 
-The difference from the Baldwinian model compared to the Lamarckian is that improvements from the hill climber are only used to prioritize the population, and \textit{discard the changes}. The results below shows the best of the 20 executions for the three different population sizes.
+The difference from the Baldwinian model compared to the Lamarckian is that improvements from the hill climber are only used to \textit{prioritize the population}, and no changes are made to the genotype. The results below show the best of the 20 executions for the three different population sizes.
 
 \subsubsection*{Population size 50}
 
@@ -544,5 +541,10 @@ coordinates {
 \end{axis}
 \end{tikzpicture}
 
+\subsection*{Conclusion}
+
+A swift convergence towards an optima is seen when using the Lamarckian learning model. The results for these executions show that the hybrid model performs at least equal to the pure genetic algorithm to find the shortest route distance, but finds it faster. It may be they both found the global optima of $12,287.07$ km (not confirmed). It's also possible that the shortest route found is a \textit{local} optima, and the Lamarckian just got stuck there faster than the pure genetic one. Both hybrid models are slower to run than the pure genetic algorithm by a factor of $6-7$, and they are also more complex to write. Since the results indicate the algorithm converge quickly, the number of generations can be reduced to improve the execution time.
+
+The Baldwinian learning model performs worst in regard to finding the route distance. However, as shown in the graphs above, the Baldwinian model is better at a continuous exploration of the genotype space.
 
 \end{document}
