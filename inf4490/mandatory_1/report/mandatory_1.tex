@@ -350,7 +350,7 @@ $ python tsp_genetic.py 24
 
 This section describes the result when combining hill climbing with the genetic algorithm. The hybrid variant is mostly the same as the genetic algorithm from the previous section with one exception. The hill climber improves (or tries to improve) each individual before selecting survivors for next generation. There are two variants to this strategy, \textbf{the Lamarckian} and the \textbf{the Baldwinian}, and they differ in how the hill climber results are used for the genotype of the upcoming generation.
 
-\subsection*{The Lamarckian learning model}
+\subsection*{Lamarckian learning model}
 
 The results from the hill climber are \textit{kept in the genotype} in the Lamarckian learning model. The results below shows the best of the 20 executions for the three different population sizes.
 
@@ -453,7 +453,7 @@ $ python tsp_genetic_lamarckian.py 24
 \end{verbatim}
 
 
-\subsection*{The Baldwinian learning model}
+\subsection*{Baldwinian learning model}
 
 The difference from the Baldwinian model compared to the Lamarckian is that improvements from the hill climber are only used to \textit{prioritize the population}, and no changes are made to the genotype. The results below show the best of the 20 executions for the three different population sizes.
 
