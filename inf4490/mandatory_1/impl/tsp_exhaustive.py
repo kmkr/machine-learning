@@ -35,6 +35,6 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         num_cities = int(sys.argv[1])
 
-    print('Exhastive search using ' + str(num_cities) + ' first cities')
+    print('Exhaustive search using ' + str(num_cities) + ' first cities')
     shortest, duration = exhaustive_search(num_cities)
     print('Found shortest ' + str(shortest) + ' in ' + str(duration) + ' seconds')
