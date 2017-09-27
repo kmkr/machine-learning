@@ -2,8 +2,14 @@ import random
 from functools import reduce
 
 BIAS = -1
-ITERATIONS = 20
+ITERATIONS = 100
 LEARNING_RATE = 0.05
+
+class BinaryOp:
+    def __init__(self, inputs, targets, label):
+        self.inputs = list(map(lambda inp: ([BIAS] + inp), inputs))
+        self.targets = targets
+        self.label = label
 
 class Perceptron:
 
@@ -17,23 +23,35 @@ class Perceptron:
     def update(self, cur_weight, target, activation, value):
         return cur_weight + LEARNING_RATE * (target - activation) * value
 
-    def train(self, inputs, targets):
+    def train(self, binaryOp):
         for _ in range(ITERATIONS):
-            for idx, input in enumerate(inputs):
-                activation = self.get_activation(input)
-                f = lambda x: self.update(x[1], targets[idx], activation, input[x[0]])
+            for idx, inp in enumerate(binaryOp.inputs):
+                activation = self.get_activation(inp)
+                f = lambda x: self.update(x[1], binaryOp.targets[idx], activation, inp[x[0]])
                 self.weights = list(map(f, enumerate(self.weights)))
-                print(self.weights)
 
-def get_weights():
-    return [random.random() * 0.5, random.random() * 0.5, random.random() * 0.5]
+def generate_weights():
+    return [random.random() for _ in range(3)]
+
+def run_ops():
+    binary_ops = [
+        BinaryOp([[0, 0], [0, 1], [1, 0], [1, 1]], [0, 0, 0, 1], 'NAND'),
+        BinaryOp([[0, 0], [0, 1], [1, 0], [1, 1]], [1, 0, 0, 0], 'NOR'),
+        BinaryOp([[0, 0], [0, 1], [1, 0], [1, 1]], [0, 1, 1, 0], 'XOR'),
+    ]
+
+    for binary_op in binary_ops:
+        weights = generate_weights()
+        perceptron = Perceptron(weights)
+        perceptron.train(binary_op)
+        print('Checking ' + str(binary_op.label))
+        for idx, inp in enumerate(binary_op.inputs):
+            activation = perceptron.get_activation(inp)
+            target = binary_op.targets[idx]
+            if activation == target:
+                print('Success')
+            else:
+                print('Failure')
 
 if __name__ == '__main__':
-    weights = get_weights()
-    not_perceptron = Perceptron(weights)
-    not_perceptron.train([ [BIAS, 0, 0], [BIAS, 0, 1], [BIAS, 1, 0], [BIAS, 1, 1] ], [0, 0, 0, 1])
-
-    print(not_perceptron.get_activation([BIAS, 0, 0]))
-    print(not_perceptron.get_activation([BIAS, 0, 1]))
-    print(not_perceptron.get_activation([BIAS, 1, 0]))
-    print(not_perceptron.get_activation([BIAS, 1, 1]))
+    run_ops()
