@@ -55,7 +55,7 @@ test_targets = target[3::4]
 hidden = 12
 
 # Initialize the network:
-net = mlp.mlp(train, train_targets, hidden)
+net = mlp.Mlp(train, train_targets, hidden)
 
 # Run training:
 net.earlystopping(train, train_targets, valid, valid_targets)

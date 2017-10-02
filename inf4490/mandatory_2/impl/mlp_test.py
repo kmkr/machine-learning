@@ -9,7 +9,7 @@ class TestMlp(unittest.TestCase):
     def setUp(self):
         self.mlp = Mlp(np.array([[1], [2]]), np.array([[1], [2]]), 12)
 
-    def test_activation_with_one_input(self):
+    def test_weighted_sum_with_one_input(self):
         # shape(1, 2) -> (1, 3) with bias added
         inputs = np.array([
             [4, -3]
@@ -20,14 +20,14 @@ class TestMlp(unittest.TestCase):
             [1, 3],
             [2, 4],
         ])
-        np.testing.assert_array_equal(self.mlp._activation(inputs, weights), np.array([
+        np.testing.assert_array_equal(self.mlp._weighted_sum(inputs, weights), np.array([
             [
                 (BIAS * -1) + (4 * 1) + (-3 * 2),
                 (BIAS * 5) + (4 * 3) + (-3 * 4)
             ]
         ]))
 
-    def test_activation_with_two_inputs(self):
+    def test_weighted_sum_with_two_inputs(self):
         # shape(2, 3) -> (2, 4) with bias added
         inputs = np.array([
             [4, -3, 1],
@@ -40,7 +40,7 @@ class TestMlp(unittest.TestCase):
             [2, 4],
             [1, 2],
         ])
-        np.testing.assert_array_equal(self.mlp._activation(inputs, weights), np.array([
+        np.testing.assert_array_equal(self.mlp._weighted_sum(inputs, weights), np.array([
             [
                 (BIAS * -1) + (4 * 1) + (-3 * 2) + (1 * 1),
                 (BIAS * 5) + (4 * 3) + (-3 * 4) + (1 * 2)
