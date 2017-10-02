@@ -23,24 +23,26 @@ class Mlp:
     def earlystopping(self, inputs, targets, valid, validtargets):
         self.train(inputs, targets)
         # validate vekter med valid opp mot validtargets
+        outputs = self.forward(valid)
+        activation_o = outputs[0]
+        print(1)
 
     def train(self, inputs, targets, iterations=100):
-        outputs = self.forward(inputs)
-        activation_o = outputs[0]
-        activation_h = outputs[1]
-        # Equation (4.14) from Marsland
-        delta_o = activation_o - targets
-        # Todo finn ut av om dette er riktig!
-        #weightswtf = np.delete(np.transpose(self.weights_output_layer), 0, axis=1)
-        weightswtf = np.transpose(self.weights_output_layer)
-        delta_h = activation_h * (1 - activation_h) * np.dot(delta_o, weightswtf)
+        for _ in range(iterations):
+            outputs = self.forward(inputs)
+            activation_o = outputs[0]
+            activation_h = outputs[1]
+            # Equation (4.14) from Marsland
+            delta_o = activation_o - targets
+            # Todo finn ut av om dette er riktig!
+            #weightswtf = np.delete(np.transpose(self.weights_output_layer), 0, axis=1)
+            weightswtf = np.transpose(self.weights_output_layer)
+            delta_h = activation_h * (1 - activation_h) * np.dot(delta_o, weightswtf)
 
-        #update_output_w = self.eta * np.dot(np.transpose(inputs), delta_h)
-        update_output_w = self.eta * np.dot(np.transpose(activation_h), delta_o)
-        update_hidden_w = self.eta * np.dot(np.transpose(inputs), delta_h)
-        self.weights_output_layer = self.weights_output_layer + update_output_w
-        self.weights_hidden_layer = self.weights_hidden_layer + update_hidden_w
-        print(1)
+            update_output_w = self.eta * np.dot(np.transpose(activation_h), delta_o)
+            update_hidden_w = self.eta * np.dot(np.transpose(inputs), delta_h)
+            self.weights_output_layer = self.weights_output_layer + update_output_w
+            self.weights_hidden_layer = self.weights_hidden_layer + update_hidden_w
 
     def _weighted_sum(self, inputs, weights):
         #input_with_bias = np.insert(inputs, 0, BIAS_INPUT, axis=1)
