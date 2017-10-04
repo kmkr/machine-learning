@@ -5,6 +5,7 @@ class XorMlp:
     def __init__(self, inputs, targets, nhidden):
         self.eta = 0.1
         self.beta = 1
+        self.momentum = 0.9
         num_input_rows = inputs.shape[1]
         hidden_shape = (num_input_rows + 1, nhidden)
         output_shape = (nhidden + 1, targets.shape[1])
@@ -20,6 +21,8 @@ class XorMlp:
         return np.insert(elems, 0, BIAS_INPUT, axis=1)
 
     def train(self, inputs, targets, iterations=100):
+        update_hidden_w = np.zeros((np.shape(self.weights_hidden_layer)))
+        update_output_w = np.zeros((np.shape(self.weights_output_layer)))
         for n in range(iterations):
             outputs = self.forward(inputs)
             error = 0.5*np.sum((outputs[0]-targets)**2)
@@ -29,15 +32,12 @@ class XorMlp:
             activation_h = outputs[1]
             # Equation (4.8) from Marsland
             delta_o = (activation_o - targets) * activation_o * (1.0 - activation_o)
-            #delta_h = activation_h * (1 - activation_h) * (np.dot(delta_o, np.transpose(self.weights_hidden_layer)))
-            # Todo finn ut av om dette er riktig!
-            #weightswtf = np.delete(np.transpose(self.weights_output_layer), 0, axis=1)
             activation_h_with_bias = self._with_bias(activation_h)
             inputs_with_bias = self._with_bias(inputs)
             delta_h = activation_h_with_bias * (1.0 - activation_h_with_bias) * np.dot(delta_o, np.transpose(self.weights_output_layer))
 
-            update_hidden_w = self.eta * np.dot(np.transpose(inputs_with_bias), delta_h[:,:-1])
-            update_output_w = self.eta * np.dot(np.transpose(activation_h_with_bias), delta_o)
+            update_hidden_w = self.eta * np.dot(np.transpose(inputs_with_bias), delta_h[:,:-1]) + self.momentum * update_hidden_w
+            update_output_w = self.eta * np.dot(np.transpose(activation_h_with_bias), delta_o) + self.momentum * update_output_w
             self.weights_output_layer -= update_output_w
             self.weights_hidden_layer -= update_hidden_w
 
