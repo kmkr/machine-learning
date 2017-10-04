@@ -9,10 +9,10 @@ class XorMlp:
         num_input_rows = inputs.shape[1]
         hidden_shape = (num_input_rows + 1, nhidden)
         output_shape = (nhidden + 1, targets.shape[1])
-        self.weights_hidden_layer = np.random.uniform(-1, 1, hidden_shape)
-        self.weights_output_layer = np.random.uniform(-1, 1, output_shape)
-        #self.weights_hidden_layer = (np.random.rand(num_input_rows + 1, nhidden)-0.5)*2/np.sqrt(num_input_rows)
-        #self.weights_output_layer = (np.random.rand(nhidden + 1, targets.shape[1])-0.5)*2/np.sqrt(nhidden)
+        #self.weights_hidden_layer = np.random.uniform(-1, 1, hidden_shape)
+        #self.weights_output_layer = np.random.uniform(-1, 1, output_shape)
+        self.weights_hidden_layer = (np.random.rand(num_input_rows + 1, nhidden)-0.5)*2/np.sqrt(num_input_rows)
+        self.weights_output_layer = (np.random.rand(nhidden + 1, targets.shape[1])-0.5)*2/np.sqrt(nhidden)
 
     def activation(self, outputs):
          return 1.0/(1.0+np.exp(-self.beta*outputs))
@@ -51,9 +51,25 @@ class XorMlp:
         activation_o = self.activation(z_o)
         return (activation_o, activation_h)
 
-    def confusion(self, inputs, targets):
-        print('To be implemented')
+    def _confmat(self, outputs, targets):
+        num_input_values = 2 # må fikses for mer generell input
+        confmat_shape = (num_input_values, num_input_values)
+        confmat = np.zeros(confmat_shape)
 
+        for i, output in enumerate(outputs):
+            for j, elem in enumerate(output):
+                normalized = 1 if output > 0.5 else 0
+                target = targets[i][j]
+                #success = target == normalized
+                actual_classifier = target # class er enten 0 eller 1
+                predicted_classifier = normalized
+                confmat[actual_classifier][predicted_classifier] = confmat[actual_classifier][predicted_classifier] + 1
+
+        return (confmat, outputs)
+
+    def confusion(self, inputs, targets):
+        outputs = self.forward(inputs)[0]
+        return self._confmat(outputs, targets)
 
 def run():
     inputs = np.array([
@@ -68,12 +84,15 @@ def run():
         [0],
         [1]
     ])
-    num_hidden = 2
+    num_hidden = 5
 
     mlp = XorMlp(inputs, targets, num_hidden)
-    mlp.train(inputs, targets, 1000)
-    outputs = mlp.forward(inputs)
-    print(outputs[0])
+    mlp.train(inputs, targets, 5000)
+    confmat_result = mlp.confusion(inputs, targets)
+    print('Output:')
+    print(confmat_result[1])
+    print('Confmat:')
+    print(confmat_result[0])
 
 if __name__ == '__main__':
     run()

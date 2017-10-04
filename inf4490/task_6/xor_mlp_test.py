@@ -26,11 +26,11 @@ class TestXorMlp(unittest.TestCase):
         self.assertEqual(self.mlp.weights_hidden_layer.shape, (3,2))
         self.assertEqual(self.mlp.weights_output_layer.shape, (3,1))
 
-    def test_activation(self):
-        np.testing.assert_array_equal(
-            self.mlp.activation(np.array([[-1, 0], [0, 1]])),
-            np.array([[0, 0], [0, 1]])
-        )
+    # def test_activation(self):
+    #     np.testing.assert_array_equal(
+    #         self.mlp.activation(np.array([[-1, 0], [0, 1]])),
+    #         np.array([[0, 0], [0, 1]])
+    #     )
 
     def test_weighted_sum_with_one_input(self):
         weights = np.array([
@@ -44,6 +44,32 @@ class TestXorMlp(unittest.TestCase):
             [ (BIAS * -3) + (0 * 1) + (1 * 4), (BIAS * 2) + (0 * 3) + (1 * 5) ], # weighted sum input (0, 1)
             [ (BIAS * -3) + (1 * 1) + (1 * 4), (BIAS * 2) + (1 * 3) + (1 * 5) ], # weighted sum input (1, 1)
             [ (BIAS * -3) + (1 * 1) + (0 * 4), (BIAS * 2) + (1 * 3) + (0 * 5) ] # weighted sum input (1, 0)
+        ]))
+
+    def test_full_success_confmat(self):
+        outputs = np.array([
+            [0],
+            [1],
+            [0],
+            [1]
+        ])
+        confmat = self.mlp._confmat(outputs, self.targets)[0]
+        np.testing.assert_array_equal(confmat, np.array([
+            [2, 0],
+            [0, 2],
+        ]))
+
+    def test_partial_success_confmat(self):
+        outputs = np.array([
+            [1],
+            [1],
+            [0],
+            [1]
+        ])
+        confmat = self.mlp._confmat(outputs, self.targets)[0]
+        np.testing.assert_array_equal(confmat, np.array([
+            [1, 1],
+            [0, 2],
         ]))
 
 if __name__ == '__main__':
