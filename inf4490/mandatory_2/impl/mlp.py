@@ -41,8 +41,8 @@ class Mlp:
             activation_o = outputs[0]
             activation_h = outputs[1]
             # Equation (4.8) from Marsland
-            delta_o = (activation_o - targets) * activation_o * (1.0 - activation_o)
-            deltao = (activation_o - targets) / inputs.shape[0]
+            #delta_o = (activation_o - targets) * activation_o * (1.0 - activation_o)
+            delta_o = (activation_o - targets) / inputs.shape[0]
             activation_h_with_bias = self._with_bias(activation_h)
             inputs_with_bias = self._with_bias(inputs)
             delta_h = activation_h_with_bias * (1.0 - activation_h_with_bias) * np.dot(delta_o, np.transpose(self.weights_output_layer))
