@@ -1,11 +1,12 @@
 import numpy as np
 
 BIAS_INPUT = -1
+ETA = 0.1
+BETA = 1
+MOMENTUM = 0.9
+ERROR_RATIO_THRESHOLD = 0.1
 class Mlp:
     def __init__(self, inputs, targets, nhidden):
-        self.eta = 0.1
-        self.beta = 1
-        self.momentum = 0.9
         num_input_rows = inputs.shape[1]
         hidden_shape = (num_input_rows + 1, nhidden)
         output_shape = (nhidden + 1, targets.shape[1])
@@ -18,39 +19,50 @@ class Mlp:
         return np.insert(elems, 0, BIAS_INPUT, axis=1)
 
     def sigmoid_activation(self, z):
-        return 1 / (1 + np.exp(self.beta  * -z))
+        return 1 / (1 + np.exp(BETA * -z))
 
     def linear_activation(self, h):
         return h;
 
+    def _get_error(self, outputs, targets):
+        return 0.5*np.sum((outputs[0]-targets)**2)
+
     def earlystopping(self, inputs, targets, valid, validtargets):
-        self.train(inputs, targets)
-        # validate vekter med valid opp mot validtargets
-        outputs = self.forward(valid)
-        activation_o = outputs[0]
-        print(1)
+        prev_error = np.inf
+        cur_error = np.inf
+        while cur_error <= prev_error:
+            self.train(inputs, targets)
+            outputs = self.forward(valid)
+            activation_o = outputs[0]
+            prev_error = cur_error
+            cur_error = self._get_error(activation_o, validtargets)
+            self.confmat(valid, validtargets)
+
+        return cur_error
 
     def train(self, inputs, targets, iterations=100):
         update_hidden_w = np.zeros((np.shape(self.weights_hidden_layer)))
         update_output_w = np.zeros((np.shape(self.weights_output_layer)))
         for n in range(iterations):
             outputs = self.forward(inputs)
-            error = 0.5*np.sum((outputs[0]-targets)**2)
-            #if (np.mod(n,50)==0):
-            print("Iteration: ",n, " Error: ",error)
+            if (np.mod(n,50)==0):
+                print("Iteration: ",n, " Error: ", self._get_error(outputs[0], targets))
             activation_o = outputs[0]
             activation_h = outputs[1]
             # Equation (4.8) from Marsland
-            #delta_o = (activation_o - targets) * activation_o * (1.0 - activation_o)
+            # delta_o = (activation_o - targets) * activation_o * (1.0 - activation_o)
+            # Todo: hvilken eq er dette?
             delta_o = (activation_o - targets) / inputs.shape[0]
             activation_h_with_bias = self._with_bias(activation_h)
             inputs_with_bias = self._with_bias(inputs)
             delta_h = activation_h_with_bias * (1.0 - activation_h_with_bias) * np.dot(delta_o, np.transpose(self.weights_output_layer))
 
-            update_hidden_w = self.eta * np.dot(np.transpose(inputs_with_bias), delta_h[:,:-1]) + self.momentum * update_hidden_w
-            update_output_w = self.eta * np.dot(np.transpose(activation_h_with_bias), delta_o) + self.momentum * update_output_w
+            update_hidden_w = ETA * np.dot(np.transpose(inputs_with_bias), delta_h[:,:-1]) + MOMENTUM * update_hidden_w
+            update_output_w = ETA * np.dot(np.transpose(activation_h_with_bias), delta_o) + MOMENTUM * update_output_w
             self.weights_output_layer -= update_output_w
             self.weights_hidden_layer -= update_hidden_w
+
+        return outputs
 
     def _weighted_sum(self, inputs, weights):
         return np.dot(self._with_bias(inputs), weights)
