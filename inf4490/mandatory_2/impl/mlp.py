@@ -12,8 +12,9 @@ class Mlp:
         output_shape = (nhidden + 1, targets.shape[1])
         #self.weights_hidden_layer = np.random.uniform(-1, 1, hidden_shape)
         #self.weights_output_layer = np.random.uniform(-1, 1, output_shape)
-        self.weights_hidden_layer = (np.random.rand(num_input_rows + 1, nhidden)-0.5)*2/np.sqrt(num_input_rows)
-        self.weights_output_layer = (np.random.rand(nhidden + 1, targets.shape[1])-0.5)*2/np.sqrt(nhidden)
+        # todo: dette gjøres vel for å skvise tallene nærmere 0?
+        self.weights_hidden_layer = (np.random.rand(num_input_rows + 1, nhidden) - 0.5) * (2 / np.sqrt(num_input_rows))
+        self.weights_output_layer = (np.random.rand(nhidden + 1, targets.shape[1]) - 0.5) * (2 / np.sqrt(nhidden))
 
     def _with_bias(self, elems):
         return np.insert(elems, 0, BIAS_INPUT, axis=1)
@@ -31,22 +32,22 @@ class Mlp:
         prev_error = np.inf
         cur_error = np.inf
         while cur_error <= prev_error:
+            print('Current error is', cur_error)
             self.train(inputs, targets)
             outputs = self.forward(valid)
             activation_o = outputs[0]
             prev_error = cur_error
             cur_error = self._get_error(activation_o, validtargets)
-            self.confmat(valid, validtargets)
 
         return cur_error
 
     def train(self, inputs, targets, iterations=100):
         update_hidden_w = np.zeros((np.shape(self.weights_hidden_layer)))
         update_output_w = np.zeros((np.shape(self.weights_output_layer)))
-        for n in range(iterations):
+        for index in range(iterations):
             outputs = self.forward(inputs)
-            if (np.mod(n,50)==0):
-                print("Iteration: ",n, " Error: ", self._get_error(outputs[0], targets))
+            if (np.mod(index, 10) == 0):
+                print('Iteration',index, 'error:', self._get_error(outputs[0], targets))
             activation_o = outputs[0]
             activation_h = outputs[1]
             # Equation (4.8) from Marsland
@@ -67,31 +68,6 @@ class Mlp:
     def _weighted_sum(self, inputs, weights):
         return np.dot(self._with_bias(inputs), weights)
 
-    # todo: skriv om denne!
-    def confmat(self,inputs,targets):
-        """Confusion matrix"""
-
-        outputs = self.forward(inputs)[0]
-
-        nclasses = np.shape(targets)[1]
-
-        if nclasses==1:
-            nclasses = 2
-            outputs = np.where(outputs>0.5,1,0)
-        else:
-            # 1-of-N encoding
-            outputs = np.argmax(outputs,1)
-            targets = np.argmax(targets,1)
-
-        cm = np.zeros((nclasses,nclasses))
-        for i in range(nclasses):
-            for j in range(nclasses):
-                cm[i,j] = np.sum(np.where(outputs==i,1,0)*np.where(targets==j,1,0))
-
-        print("Confusion matrix is:")
-        print(cm)
-        print("Percentage Correct: ",np.trace(cm)/np.sum(cm)*100)
-
     def forward(self, inputs):
         z_h = self._weighted_sum(inputs, self.weights_hidden_layer)
         activation_h = self.sigmoid_activation(z_h)
@@ -100,4 +76,15 @@ class Mlp:
         return (activation_o, activation_h)
 
     def confusion(self, inputs, targets):
-        return self.confmat(inputs, targets)
+        outputs = self.forward(inputs)[0]
+        num_input = targets.shape[1]
+        outputs = np.argmax(outputs,1)
+        targets = np.argmax(targets,1)
+
+        confusion_matrix = np.zeros((num_input,num_input))
+        for i in range(num_input):
+            for j in range(num_input):
+                confusion_matrix[i,j] = np.sum(np.where(outputs==i,1,0)*np.where(targets==j,1,0))
+
+        percentage_correct = np.trace(confusion_matrix) / np.sum(confusion_matrix) * 100
+        return (confusion_matrix, percentage_correct)

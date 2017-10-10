@@ -64,4 +64,11 @@ net.earlystopping(train, train_targets, valid, valid_targets)
 #       This is a matter of preference.
 
 # Check how well the network performed:
-net.confusion(test,test_targets)
+result = net.confusion(test,test_targets)
+confusion_matrix = result[0]
+percentage_correct = result[1]
+
+print('Confusion matrix:')
+print(confusion_matrix)
+print('Percentage correct:')
+print(percentage_correct)
