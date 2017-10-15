@@ -10,8 +10,8 @@ class Mlp:
         num_input_rows = inputs.shape[1]
         hidden_shape = (num_input_rows + 1, nhidden)
         output_shape = (nhidden + 1, targets.shape[1])
-        self.weights_hidden_layer = np.random.uniform(-1, 1, hidden_shape)
-        self.weights_output_layer = np.random.uniform(-1, 1, output_shape)
+        self.weights_hidden_layer = np.random.uniform(-1.0, 1.0, hidden_shape)
+        self.weights_output_layer = np.random.uniform(-1.0, 1.0, output_shape)
 
     def _with_bias(self, elems):
         return np.insert(elems, 0, BIAS_INPUT, axis=1)
@@ -23,13 +23,12 @@ class Mlp:
         return h;
 
     def _get_error(self, outputs, targets):
-        return 0.5*np.sum((outputs[0]-targets)**2)
+        return 0.5 * np.sum((outputs[0] - targets) ** 2)
 
     def earlystopping(self, inputs, targets, valid, validtargets):
         prev_error = np.inf
         cur_error = np.inf
         while cur_error <= prev_error:
-            # print('Current error is', cur_error)
             self.train(inputs, targets)
             outputs = self.forward(valid)
             activation_o = outputs[0]
@@ -43,12 +42,8 @@ class Mlp:
         update_output_w = np.zeros((np.shape(self.weights_output_layer)))
         for index in range(iterations):
             outputs = self.forward(inputs)
-            # if (np.mod(index, 10) == 0):
-            #     print('Iteration',index, 'error:', self._get_error(outputs[0], targets))
             activation_o = outputs[0]
             activation_h = outputs[1]
-            # Equation (4.8) from Marsland
-            # delta_o = (activation_o - targets) * activation_o * (1.0 - activation_o)
             # Modified equation (4.14) from Marsland
             delta_o = (activation_o - targets) / inputs.shape[0]
             activation_h_with_bias = self._with_bias(activation_h)
