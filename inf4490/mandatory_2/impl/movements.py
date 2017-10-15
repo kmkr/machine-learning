@@ -39,20 +39,29 @@ movements = movements[order,:]
 target = target[order,:]
 
 # Split data into 3 sets
+def split_movements(movements, targets):
+    # Training updates the weights of the network and thus improves the network
+    train = movements[::2,0:40]
+    train_targets = targets[::2]
 
-# Training updates the weights of the network and thus improves the network
-train = movements[::2,0:40]
-train_targets = target[::2]
+    # Validation checks how well the network is performing and when to stop
+    valid = movements[1::4,0:40]
+    valid_targets = targets[1::4]
 
-# Validation checks how well the network is performing and when to stop
-valid = movements[1::4,0:40]
-valid_targets = target[1::4]
+    # Test data is used to evaluate how good the completely trained network is.
+    test = movements[3::4,0:40]
+    test_targets = targets[3::4]
 
-# Test data is used to evaluate how good the completely trained network is.
-test = movements[3::4,0:40]
-test_targets = target[3::4]
+    return { 'train': train, 'train_targets': train_targets, 'valid': valid, 'valid_targets': valid_targets, 'test': test, 'test_targets': test_targets }
 
-def run(num_hidden):
+def run(num_hidden, datasets):
+    train = datasets['train']
+    train_targets = datasets['train_targets']
+    valid = datasets['valid']
+    valid_targets = datasets['valid_targets']
+    test = datasets['test']
+    test_targets = datasets['test_targets']
+
     net = mlp.Mlp(train, train_targets, num_hidden)
     net.earlystopping(train, train_targets, valid, valid_targets)
     return net.confusion(test,test_targets)
@@ -62,11 +71,12 @@ def run_multiple_times_and_calculate_mean_percentage_error():
     max_hidden = 30
     num_runs = 50
     print('number_of_hidden_nodes,mean_percentage_correct')
+    datasets = split_movements(movements, target)
     while cur_hidden <= max_hidden:
         cur_run = 0
         percentage_corrects = np.zeros(num_runs)
         while cur_run < num_runs:
-            result = run(cur_hidden)
+            result = run(cur_hidden, datasets)
             percentage_corrects[cur_run] = result[1]
             cur_run += 1
 
@@ -75,7 +85,7 @@ def run_multiple_times_and_calculate_mean_percentage_error():
 
 def run_one_time_and_print_confusion_matrix():
     hidden = 14
-    result = run(hidden)
+    result = run(hidden, split_movements(movements, target))
     confusion_matrix = result[0]
     percentage_correct = result[1]
 
