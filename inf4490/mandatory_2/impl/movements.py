@@ -9,6 +9,8 @@ import numpy as np
 import mlp
 import os
 import sys
+import math
+
 dirPath = os.path.dirname(os.path.abspath(__file__))
 
 filename = '/data/movements_day1-3.dat'
@@ -83,9 +85,9 @@ def run_multiple_times_and_calculate_mean_percentage_error():
         print(str(cur_hidden) + ',' + str(np.mean(percentage_corrects)))
         cur_hidden += 1
 
-def run_one_time_and_print_confusion_matrix():
+def run_one_time_and_print_confusion_matrix(datasets):
     hidden = 14
-    result = run(hidden, split_movements(movements, target))
+    result = run(hidden, datasets)
     confusion_matrix = result[0]
     percentage_correct = result[1]
 
@@ -93,10 +95,57 @@ def run_one_time_and_print_confusion_matrix():
     print(confusion_matrix)
     print('Percentage correct:')
     print(percentage_correct)
+    return percentage_correct
+
+def run_k_fold(num_folds):
+    cur_fold = 0
+    num_data = movements.shape[0]
+    bucket_size = math.floor(num_data / num_folds)
+
+    indices = list(range(num_data))
+    np.random.shuffle(indices)
+
+    results = []
+    while cur_fold < num_folds:
+        print('\nFold', cur_fold)
+        train = []
+        train_targets = []
+        valid = []
+        valid_targets = []
+        test = []
+        test_targets = []
+        fold_index = cur_fold * bucket_size
+
+        for index in indices:
+            folded_index = (fold_index + index) % num_data
+            if folded_index % 2 == 0:
+                train.append(movements[folded_index,0:40])
+                train_targets.append(target[folded_index])
+            elif (folded_index + 1) % 4 == 0:
+                valid.append(movements[folded_index,0:40])
+                valid_targets.append(target[folded_index])
+            elif (folded_index + 3) % 4 == 0:
+                test.append(movements[folded_index,0:40])
+                test_targets.append(target[folded_index])
+
+        datasets =  { 'train': np.array(train), 'train_targets': np.array(train_targets), 'valid': np.array(valid), 'valid_targets': np.array(valid_targets), 'test': np.array(test), 'test_targets': np.array(test_targets) }
+
+        result = run_one_time_and_print_confusion_matrix(datasets)
+        results.append(result)
+
+        cur_fold += 1
+
+    print('\n')
+    print('max', np.max(results))
+    print('std', np.std(results))
+    print('avg', np.average(results))
 
 arg = sys.argv[1] if len(sys.argv) > 1 else ''
 
 if arg == 'mean':
     run_multiple_times_and_calculate_mean_percentage_error()
+elif arg == 'kfold':
+    num_k = int(sys.argv[2]) if len(sys.argv) > 2 else 10
+    run_k_fold(num_k)
 else:
-    run_one_time_and_print_confusion_matrix()
+    run_one_time_and_print_confusion_matrix(split_movements(movements, target))
