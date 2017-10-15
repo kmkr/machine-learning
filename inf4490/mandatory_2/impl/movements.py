@@ -8,6 +8,7 @@
 import numpy as np
 import mlp
 import os
+import sys
 dirPath = os.path.dirname(os.path.abspath(__file__))
 
 filename = '/data/movements_day1-3.dat'
@@ -51,24 +52,44 @@ valid_targets = target[1::4]
 test = movements[3::4,0:40]
 test_targets = target[3::4]
 
-# Try networks with different number of hidden nodes:
-hidden = 12
+def get_mean_percentage():
+    cur_hidden = 5
+    max_hidden = 30
+    num_runs = 50
+    while cur_hidden <= max_hidden:
+        cur_run = 0
+        percentage_corrects = np.zeros(num_runs)
+        while cur_run < num_runs:
+            net = mlp.Mlp(train, train_targets, cur_hidden)
+            net.earlystopping(train, train_targets, valid, valid_targets)
+            result = net.confusion(test,test_targets)
+            percentage_corrects[cur_run] = result[1]
+            cur_run += 1
 
-# Initialize the network:
-net = mlp.Mlp(train, train_targets, hidden)
+        print(cur_hidden, ',', np.mean(percentage_corrects))
+        cur_hidden += 1
 
-# Run training:
-net.earlystopping(train, train_targets, valid, valid_targets)
-# NOTE: You can also call train method from here,
-#       and make train use earlystopping method.
-#       This is a matter of preference.
+if len(sys.argv) > 1:
+    get_mean_percentage()
+else:
+    # Try networks with different number of hidden nodes:
+    hidden = 150
 
-# Check how well the network performed:
-result = net.confusion(test,test_targets)
-confusion_matrix = result[0]
-percentage_correct = result[1]
+    # Initialize the network:
+    net = mlp.Mlp(train, train_targets, hidden)
 
-print('Confusion matrix:')
-print(confusion_matrix)
-print('Percentage correct:')
-print(percentage_correct)
+    # Run training:
+    net.earlystopping(train, train_targets, valid, valid_targets)
+    # NOTE: You can also call train method from here,
+    #       and make train use earlystopping method.
+    #       This is a matter of preference.
+
+    # Check how well the network performed:
+    result = net.confusion(test,test_targets)
+    confusion_matrix = result[0]
+    percentage_correct = result[1]
+
+    print('Confusion matrix:')
+    print(confusion_matrix)
+    print('Percentage correct:')
+    print(percentage_correct)

@@ -10,11 +10,8 @@ class Mlp:
         num_input_rows = inputs.shape[1]
         hidden_shape = (num_input_rows + 1, nhidden)
         output_shape = (nhidden + 1, targets.shape[1])
-        #self.weights_hidden_layer = np.random.uniform(-1, 1, hidden_shape)
-        #self.weights_output_layer = np.random.uniform(-1, 1, output_shape)
-        # todo: dette gjøres vel for å skvise tallene nærmere 0?
-        self.weights_hidden_layer = (np.random.rand(num_input_rows + 1, nhidden) - 0.5) * (2 / np.sqrt(num_input_rows))
-        self.weights_output_layer = (np.random.rand(nhidden + 1, targets.shape[1]) - 0.5) * (2 / np.sqrt(nhidden))
+        self.weights_hidden_layer = np.random.uniform(-1, 1, hidden_shape)
+        self.weights_output_layer = np.random.uniform(-1, 1, output_shape)
 
     def _with_bias(self, elems):
         return np.insert(elems, 0, BIAS_INPUT, axis=1)
@@ -32,7 +29,7 @@ class Mlp:
         prev_error = np.inf
         cur_error = np.inf
         while cur_error <= prev_error:
-            print('Current error is', cur_error)
+            # print('Current error is', cur_error)
             self.train(inputs, targets)
             outputs = self.forward(valid)
             activation_o = outputs[0]
@@ -46,8 +43,8 @@ class Mlp:
         update_output_w = np.zeros((np.shape(self.weights_output_layer)))
         for index in range(iterations):
             outputs = self.forward(inputs)
-            if (np.mod(index, 10) == 0):
-                print('Iteration',index, 'error:', self._get_error(outputs[0], targets))
+            # if (np.mod(index, 10) == 0):
+            #     print('Iteration',index, 'error:', self._get_error(outputs[0], targets))
             activation_o = outputs[0]
             activation_h = outputs[1]
             # Equation (4.8) from Marsland
