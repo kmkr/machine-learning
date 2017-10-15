@@ -73,7 +73,7 @@ if len(sys.argv) > 1:
     get_mean_percentage()
 else:
     # Try networks with different number of hidden nodes:
-    hidden = 150
+    hidden = 14
 
     # Initialize the network:
     net = mlp.Mlp(train, train_targets, hidden)
