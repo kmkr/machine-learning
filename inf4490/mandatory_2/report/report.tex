@@ -15,16 +15,17 @@
 
 \section*{Implementation}
 
-The number of inputs and outputs to the neural network is fixed, and the network is constraint to include one hidden layer. These are hyperparameters for the neural network and are constraints that won't change.
+The number of inputs and outputs to the neural network is fixed, and the network is constraint to include one hidden layer. These are constrained hyperparameters for the neural network that won't change.
 
-The network is trained using a subset of the total available data, called \emph{training data}. Another subset, called \emph{validation data}, is used to avoid overfitting the model to the training data. A third subset, called \emph{test data}, is used to verify how well the algorithm performs. By using a separate subset for test data we will more accurately measure how generalized the trained model is. One full run of the algorithm can be summarized as the following steps.
+The network is trained using a subset of the total available data, called \emph{training data}. Another subset, called \emph{validation data}, is used to avoid overfitting the model to the training data. A third subset, called \emph{test data}, is used to verify how well the algorithm performs. By using a separate subset for test data one can more accurately measure how generalized the trained model is. One full run of the algorithm is summarized as the following steps.
 
 \begin{itemize}
     \item The available data is separated into training data, test data and validation data. The ratio is set to $50\%$, $25\%$ and $25\%$ of the total data respectively.
-    \item One hidden layer is configured and weights are randomly generated.
-    \item One training round updates the weights a fixed number of iterations, set to $100$.
-    \item After training, the model is verified using the \emph{validation data}. An error value is calculated.
-    \item Training/validation repeats until the error value stops decreasing. This process is called \emph{earlystopping}.
+    \item One hidden layer is configured.
+    \item Weights are randomly generated.
+    \item The network is trained and updates the weights a fixed number of iterations, set to $100$.
+    \item After training, the model is verified using the validation data. An error value is calculated.
+    \item Training/validation repeat until the error value stops decreasing. This process is called \emph{earlystopping}.
     \item The model is tested using the test data and a confusion matrix is generated. The confusion matrix includes the percentage of correct values.
 \end{itemize}
 
@@ -50,7 +51,7 @@ coordinates {
 \end{axis}
 \end{tikzpicture}
 
-\noindent The results indicate the value converge to a maximum for just a few hidden nodes. Another interesting find is that around 150 hidden nodes the results drops significantly, which could mean the network has too many variations for the problem. For these two reasons, I will go more into detail for the nodes $5 - 30$. I will check each node, and increase the number of runs for each node to $50$. The mean is calculated and shown in the graph below.\\\\
+\noindent The results indicate the value converge to a maximum for just a few hidden nodes. Another interesting find is that around 150 hidden nodes the results drops significantly, which could mean the network ends up having too many variations for the problem. For these two reasons, I will go more into detail for the nodes 5 \ndash 30. Each of the nodes are verified, and the number of runs for each node is increased from 5 to 50. The mean is calculated and shown in the graph below.\\\\
 
 \begin{tikzpicture}
 \begin{axis}[
@@ -70,7 +71,7 @@ coordinates {
 \end{axis}
 \end{tikzpicture}
 
-\noindent For $14$ hidden nodes, the mean percentage correct is $90.2\%$. The number converges to $\approx 92\%$ for 18 nodes. However, the running time increases when nodes are added so 14 nodes are sufficient for this network to classify well. The table below shows results for even-numbered nodes.
+\noindent For 14 hidden nodes, the mean percentage correct is $90.2\%$. The number converges to $\approx 92\%$ for 18 nodes. However, adding nodes to the network also increase the running for the algorithm. 14 nodes are therefore sufficient for this network to classify well. The table below shows results for even-numbered nodes starting from 12.
 
 \begin{center}
 \begin{tabular}{cc}
@@ -94,7 +95,7 @@ Hidden nodes & Mean percentage correct \\
 
 \section*{Confusion Matrix}
 
-\noindent The confusion matrix for 14 nodes is shown below with $91.9\%$ correct classifications. Values on the diagonal are number of correctly classified instances, and values outside the diagonal are incorrectly classified instances. For example, Class 1 (the first row in the matrix) classifies incorrectly three times to Class 4, 5 and 6, respectively. Class 5 (the fifth row) is incorrectly classified two times for being Class 4.
+\noindent The confusion matrix for 14 nodes is shown below with $91.9\%$ correct classifications. Values on the diagonal represents number of correctly classified instances, and values outside the diagonal are incorrectly classified instances. For example, Class 1 (the first row in the matrix) classifies incorrectly three times to Class 4, 5 and 6, respectively. Class 5 (the fifth row) is incorrectly classified two times for being Class 4.
 
 \begin{itemize}
     \item Class 1 incorrectly classified to Class 4, 5 and 6.
@@ -103,7 +104,7 @@ Hidden nodes & Mean percentage correct \\
     \item Class 8 incorrectly classified to Class 1 and 4.
 \end{itemize}
 
-\noindent Based on this matrix, it seems like the network has some issues with classifying Class 1, 4 and 6 correctly.
+\noindent Based on the confusion matrix, it seems like the network has some issues with correctly classifying Class 1, 4 and 6.
 
 \begin{center}
 \begin{verbatim}
@@ -120,12 +121,14 @@ Hidden nodes & Mean percentage correct \\
 
 \section*{K-Fold Cross Validation}
 
-By splitting the available data into K \emph{folds} and running the algorithm K times with different data, we're able to train and validate the data on the whole dataset. The chosen model will be the one that generates the lowerst error value. The table below shows data for 6 different fold sizes. Number of hidden nodes are 14. One fold is equal to one run.
+A problem with splitting the available data into three subsets is that some of the data is not used for training. By splitting the available data into $K$ \emph{folds} and running the algorithm $K$ times with different data, we're able to train and validate the data on the whole dataset. The model we choose in the end will be the one that generates the highest amount of correct classifications (the one with the lowest error value). Number of hidden nodes is set to 14. The data is split into training, testing and validation as already explained, and the ratio between the splits are unchanged. The difference is that the content of the subsets differ in each fold.
+
+The table below shows data for 6 different fold sizes. Note that data in each row are from \emph{K single runs}, where $K$ is the amount of folds. This is in contrast to the previous implementation where the data is calculated from the mean value of $n$ runs, where $n$ is a fixed number.
 
 \begin{center}
 \begin{tabular}{cccc}
 \toprule
-Num folds & Max & Mean & Std.dev. \\
+Num folds ($K$) & Max & Mean & Std.dev. \\
 \midrule
 1 & $80.4\%$ & $80.4\%$ & $0.0$\\
 4 & $86.6\%$ & $85.3\%$ & $0.8$\\
@@ -137,7 +140,9 @@ Num folds & Max & Mean & Std.dev. \\
 \end{tabular}
 \end{center}
 
-\noindent The results above indicate that the quality of the model can be increased by using a multi-fold cross validation. By using 4 folds, the mean percentage correct values increase from $80.4\%$ to $85.3\%$. However, due to the stochastic nature of the algorithm it's too early to conclude whether multi-fold cross validation is guaranteed to be better. Two confusion matrices for the K-Fold Cross Validation are shown in the next section.
+\noindent The results above indicate that the quality of the model can be increased by using a multi-fold cross validation. For example, when using 4 folds, the mean percentage of correct values increase from $80.4\%$ to $85.3\%$. When using 20 folds, the best model achieves $96.4\%$ correct values. That is currently the best value seen with this implementation. However, due to the stochastic nature of the algorithm it's too early to conclude whether that model is guaranteed to be superior in all cases.
+
+Two confusion matrices for the K-Fold Cross Validation are shown in the next section.
 
 \section*{Running The Program}
 
@@ -165,7 +170,7 @@ Percentage correct:
 
 \subsection*{Different Number of Hidden Nodes}
 
-The following command will train the network 50 times and print the mean error for these runs. Hidden nodes from $5 - 30$ will be used.
+The following command will train the network 50 times and print the mean error for these runs. Number of hidden nodes spans 5 \ndash 30.
 
 \begin{verbatim}
 $ python movements.py mean
@@ -201,7 +206,7 @@ number_of_hidden_nodes,mean_percentage_correct
 
 \subsection*{K-Fold Cross Validation}
 
-The following command will train the network using K-folds and print percentage correct and confusion matrices for all folds.
+The following command will train the network using $K$-folds and print the percentage correct values together with confusion matrices for all of the folds. Max percentage correct, standard deviation and the average percentage correct over the folds are printed below the last fold.
 
 \begin{verbatim}
 $ python movements.py kfold 10
