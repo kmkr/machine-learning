@@ -23,7 +23,7 @@ class Mlp:
         return h;
 
     def _get_error(self, outputs, targets):
-        return 0.5 * np.sum((outputs[0] - targets) ** 2)
+        return np.sum((outputs[0] - targets) ** 2)
 
     def earlystopping(self, inputs, targets, valid, validtargets):
         prev_error = np.inf

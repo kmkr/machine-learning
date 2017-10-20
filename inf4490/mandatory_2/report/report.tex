@@ -5,7 +5,7 @@
 \usepackage{pgfplots}
 \usepackage{amsmath}
 
-\title{Mandatory Assignment 2 - Neural Nets}
+\title{Assignment 2 - Neural Nets}
 \author{Kris-Mikael Krister (krismikk)\\\texttt{krismikael@protonmail.com}}
 \date{\today}
 
@@ -15,23 +15,26 @@
 
 \section*{Implementation}
 
-The number of inputs and outputs to the neural network is fixed, and the network is constraint to include one hidden layer. These are constrained hyperparameters for the neural network that won't change.
+This section describes the implementation of a neural net where the inputs are motions from a hand, and the output is which movement a prosthetic hand should take based on the inputs. The number of inputs and outputs to the neural network is fixed, and the network is constrained to include one hidden layer. These hyperparameters won't change through the assigment. This section gives an overview of how the neural net is implemented.
 
-The network is trained using a subset of the total available data, called \emph{training data}. Another subset, called \emph{validation data}, is used to avoid overfitting the model to the training data. A third subset, called \emph{test data}, is used to verify how well the algorithm performs. By using a separate subset for test data one can more accurately measure how generalized the trained model is. One full run of the algorithm is summarized as the following steps.
+The network is trained using a subset of the total available data, called \emph{training data}. Another subset, called \emph{validation data}, is used to avoid overfitting the model to the training data. A third subset, called \emph{test data}, is used to verify how well the algorithm performs. The reason for using a separate subset for test data is to more accurately measure how generalized the trained model is.
+
+One full run of the algorithm is summarized as the following steps.
 
 \begin{itemize}
-    \item The available data is separated into training data, test data and validation data. The ratio is set to $50\%$, $25\%$ and $25\%$ of the total data respectively.
-    \item One hidden layer is configured.
-    \item Weights are randomly generated.
-    \item The network is trained and updates the weights a fixed number of iterations, set to $100$.
-    \item After training, the model is verified using the validation data. An error value is calculated.
-    \item Training/validation repeat until the error value stops decreasing. This process is called \emph{earlystopping}.
+    \item The available input data is separated into training data, test data and validation data. The ratio is set to $50\%$, $25\%$ and $25\%$ of the total data respectively.
+    \item One hidden layer is configured by randomly generating weights.
+    \item The network is trained and the weights are updated a fixed number of iterations, set to $100$. A sigmoid activation function is used for the hidden layeer, and a linear function for the output layer.
+    \item After training, the model is verified using the validation data. An error value is calculated using the summed squared errors, $\sum_{i=0}^{n}(y_i - t_i)^2$.
+    \item Training/validation repeats until the error value stops decreasing. This process is called \emph{earlystopping}.
     \item The model is tested using the test data and a confusion matrix is generated. The confusion matrix includes the percentage of correct values.
 \end{itemize}
 
-\noindent The amount of nodes/neurons in the hidden layer is a hyperparameter just as the number of input/ouput nodes. The amount can, in contrast to the other fixed hyperparameters, be tuned to generate the best model. I chose to find the number by trial and error.
+\subsection*{Nodes in the Hidden Layer}
 
-Initial weights are randomly generated in the algorithm, so the algorithm should run multiple times and the \emph{score} for each hidden node is calculated from the mean of the results. The graph below shows the percentage of correct values for each tenth hidden node from $1 - 300$ ($n$ where $(n + 1) \mod{10} = 0$). The mean is calculated from 5 runs, where one full run is explained in the itemized list.\\\\
+The amount of nodes/neurons in the hidden layer is a hyperparameter within one full run. The amount can, in contrast to the other fixed hyperparameters, be tuned to generate the best model. I chose to find the number by trial and error.
+
+Initial weights are randomly generated in the algorithm, so the algorithm should run multiple times and the \emph{score} for each hidden node is calculated from the mean of the results. The graph below shows the percentage of correct values for each tenth hidden node\footnote{More formally explained each $n$ within the range where $(n + 1)\mod{10} = 0$} from 1--300. The mean is calculated from 5 runs, where one full run is explained in the itemized list above.\\\\
 
 \begin{tikzpicture}
 \begin{axis}[
@@ -51,7 +54,7 @@ coordinates {
 \end{axis}
 \end{tikzpicture}
 
-\noindent The results indicate the value converge to a maximum for just a few hidden nodes. Another interesting find is that around 150 hidden nodes the results drops significantly, which could mean the network ends up having too many variations for the problem. For these two reasons, I will go more into detail for the nodes 5 \ndash 30. Each of the nodes are verified, and the number of runs for each node is increased from 5 to 50. The mean is calculated and shown in the graph below.\\\\
+\noindent The results indicate that the value converges to a maximum for just a few hidden nodes. Another interesting find is that around 150 hidden nodes the percentage correct values drops significantly, which could mean the network ends up having too many variations for the problem. For these two reasons, I will go more into detail for the nodes 5--30. Each of the nodes in that range are verified, and the number of runs for each node is increased from 5 to 50. The mean is calculated and shown in the graph below.\\\\
 
 \begin{tikzpicture}
 \begin{axis}[
@@ -71,7 +74,7 @@ coordinates {
 \end{axis}
 \end{tikzpicture}
 
-\noindent For 14 hidden nodes, the mean percentage correct is $90.2\%$. The number converges to $\approx 92\%$ for 18 nodes. However, adding nodes to the network also increase the running for the algorithm. 14 nodes are therefore sufficient for this network to classify well. The table below shows results for even-numbered nodes starting from 12.
+\noindent For 14 hidden nodes, the mean percentage correct is $90.2\%$. The number converges to $\approx 92\%$ for 18 nodes. However, adding nodes to the network requires more computations, and thus the running time of the algorithm increases. 14 nodes are therefore considered sufficient for this network to classify well. The table below shows results for even-numbered nodes starting from 12.
 
 \begin{center}
 \begin{tabular}{cc}
@@ -121,9 +124,9 @@ Hidden nodes & Mean percentage correct \\
 
 \section*{K-Fold Cross Validation}
 
-A problem with splitting the available data into three subsets is that some of the data is not used for training. By splitting the available data into $K$ \emph{folds} and running the algorithm $K$ times with different data, we're able to train and validate the data on the whole dataset. The model we choose in the end will be the one that generates the highest amount of correct classifications (the one with the lowest error value). Number of hidden nodes is set to 14. The data is split into training, testing and validation as already explained, and the ratio between the splits are unchanged. The difference is that the content of the subsets differ in each fold.
+A problem with splitting the available data into three subsets is that some of the data is not used for training. By splitting the available data into $K$ \emph{folds} and running the algorithm $K$ times with different data, we're able to train and validate the data on the whole dataset. The model to be chosen is the one with highest amount of correct classifications (the one with the lowest error value). Number of hidden nodes is set to 14. The data is split into training, testing and validation as already explained, and the ratio between the splits are unchanged.
 
-The table below shows data for 6 different fold sizes. Note that data in each row are from \emph{K single runs}, where $K$ is the amount of folds. This is in contrast to the previous implementation where the data is calculated from the mean value of $n$ runs, where $n$ is a fixed number.
+The table below shows data for 6 different fold sizes. Note that data in each row are derived from \emph{K single runs}, where $K$ is the amount of folds. This is in contrast to the previous implementation where the data is calculated from the mean value of $n$ runs, where $n$ is a fixed number.
 
 \begin{center}
 \begin{tabular}{cccc}
@@ -140,7 +143,7 @@ Num folds ($K$) & Max & Mean & Std.dev. \\
 \end{tabular}
 \end{center}
 
-\noindent The results above indicate that the quality of the model can be increased by using a multi-fold cross validation. For example, when using 4 folds, the mean percentage of correct values increase from $80.4\%$ to $85.3\%$. When using 20 folds, the best model achieves $96.4\%$ correct values. That is currently the best value seen with this implementation. However, due to the stochastic nature of the algorithm it's too early to conclude whether that model is guaranteed to be superior in all cases.
+\noindent The results above indicate that the quality of the model can be increased by using a multi-fold cross validation. For example, when using 4 folds, the mean percentage of correct values increase from $80.4\%$ to $85.3\%$. When using 20 folds, the best model achieves $96.4\%$ correct values, which is currently the highest value seen. However, due to the stochastic nature of the algorithm more tests are required before concluding whether the model is superior in all cases.
 
 Two confusion matrices for the K-Fold Cross Validation are shown in the next section.
 
@@ -170,7 +173,7 @@ Percentage correct:
 
 \subsection*{Different Number of Hidden Nodes}
 
-The following command will train the network 50 times and print the mean error for these runs. Number of hidden nodes spans 5 \ndash 30.
+The following command will train the network 50 times and print the mean error for these runs. Number of hidden nodes spans 5--30.
 
 \begin{verbatim}
 $ python movements.py mean

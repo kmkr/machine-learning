@@ -72,6 +72,7 @@ def run_multiple_times_and_calculate_mean_percentage_error():
     cur_hidden = 5
     max_hidden = 30
     num_runs = 50
+    print('finding mean percentage correct for nodes in range', cur_hidden, 'to', max_hidden, 'with', num_runs, 'runs for each node')
     print('number_of_hidden_nodes,mean_percentage_correct')
     datasets = split_movements(movements, target)
     while cur_hidden <= max_hidden:
